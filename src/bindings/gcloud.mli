@@ -3,11 +3,11 @@ open LidcoreBsNode
 
 val project : string
 
-module PubSub : sig
-  type config = <
-    projectId: string [@bs.get nullable]
-  > Js.t
+type config = {
+  projectId : string [@bs.optional]
+} [@@bs.deriving abstract]
 
+module PubSub : sig
   type t
 
   val init : ?config:config -> unit -> t
@@ -43,10 +43,6 @@ module PubSub : sig
 end
 
 module Storage : sig
-  type config = <
-    projectId: string [@bs.get nullable]
-  > Js.t
-
   type t
   type bucket
   type file
@@ -65,10 +61,6 @@ module Storage : sig
 end
 
 module Firestore : sig
-  type config = <
-    projectId: string [@bs.get nullable]
-  > Js.t
-
   type t
 
   val init : ?config:config -> unit -> t
@@ -125,10 +117,6 @@ module Firestore : sig
 end
 
 module Compute : sig
-  type config = <
-    projectId: string [@bs.get nullable]
-  > Js.t
-
   type t
 
   val init : ?config:config -> unit -> t

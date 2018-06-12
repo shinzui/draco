@@ -7,10 +7,10 @@ var Js_exn = require("bs-platform/lib/js/js_exn.js");
 var BsAsyncMonad = require("bs-async-monad/src/bsAsyncMonad.js");
 var Js_primitive = require("bs-platform/lib/js/js_primitive.js");
 var Caml_exceptions = require("bs-platform/lib/js/caml_exceptions.js");
-var Env$LidcoreDraco = require("../lib/env.js");
+var Env$LidcoreDraco = require("../env.js");
 var Date$LidcoreDraco = require("./date.js");
 var Js_null_undefined = require("bs-platform/lib/js/js_null_undefined.js");
-var Utils$LidcoreDraco = require("../lib/utils.js");
+var Utils$LidcoreDraco = require("../utils.js");
 var Pubsub = require("@google-cloud/pubsub");
 var Buffer$LidcoreBsNode = require("@lidcore/bs-node/src/buffer.js");
 var Compute = require("@google-cloud/compute");
@@ -19,12 +19,12 @@ var Firestore = require("@google-cloud/firestore");
 
 var project = Env$LidcoreDraco.get(/* Some */["komodo-dev"], "PROJECT");
 
-var config = {
+var default_config = {
   projectId: project
 };
 
 function init($staropt$star, _) {
-  return new Pubsub($staropt$star ? $staropt$star[0] : config);
+  return new Pubsub($staropt$star ? $staropt$star[0] : default_config);
 }
 
 function get_topic(pubsub, name) {
@@ -99,8 +99,8 @@ function publishBatch(projectId, topic, messages) {
 }
 
 function init$1($staropt$star, _) {
-  var config$1 = $staropt$star ? $staropt$star[0] : config;
-  var gcs = Storage(config$1);
+  var config = $staropt$star ? $staropt$star[0] : default_config;
+  var gcs = Storage(config);
   var request = function (ops) {
     ops.forever = false;
     return ops;
@@ -118,7 +118,7 @@ function getSignedUrl(config, file, cb) {
 }
 
 function init$2($staropt$star, _) {
-  return new Firestore($staropt$star ? $staropt$star[0] : config);
+  return new Firestore($staropt$star ? $staropt$star[0] : default_config);
 }
 
 var Not_saved = Caml_exceptions.create("Gcloud-LidcoreDraco.Firestore.Document.Not_saved");
@@ -392,7 +392,7 @@ function cleanup_collection(db, c) {
 }
 
 function init$3($staropt$star, _) {
-  return new Compute($staropt$star ? $staropt$star[0] : config);
+  return new Compute($staropt$star ? $staropt$star[0] : default_config);
 }
 
 function PubSub_004(prim) {

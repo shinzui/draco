@@ -5,19 +5,18 @@ open BsAsyncMonad.Callback
 let project =
   Env.get ~default:"komodo-dev" "PROJECT"
 
-let config = [%bs.obj {
-  projectId = Js.Null_undefined.return project
-}]
+type config = {
+  projectId : string [@bs.optional]
+} [@@bs.deriving abstract]
+
+let default_config =
+  config ~projectId:project ()
 
 module PubSub = struct
-  type config = <
-    projectId: string [@bs.get nullable]
-  > Js.t
-
   type t
   external pubsub : config -> t = "@google-cloud/pubsub" [@@bs.module] [@@bs.new]
 
-  let init ?(config=config) () =
+  let init ?(config=default_config) () =
     pubsub config
 
   type topic
@@ -107,10 +106,6 @@ module PubSub = struct
 end
 
 module Storage = struct
-  type config = <
-    projectId: string [@bs.get nullable]
-  > Js.t
-
   type t
   type bucket
   type file
@@ -133,7 +128,7 @@ module Storage = struct
 
   external interceptors : t -> interceptor array = "" [@@bs.get]
 
-  let init ?(config=config) () =
+  let init ?(config=default_config) () =
     let gcs = init config in
     let request ops =
       foreverSet ops false;
@@ -155,14 +150,10 @@ module Storage = struct
 end
 
 module Firestore = struct
-  type config = <
-    projectId: string [@bs.get nullable]
-  > Js.t
-
   type t
 
   external init : config -> t = "@google-cloud/firestore" [@@bs.module] [@@bs.new]
-  let init ?(config=config) () = init config
+  let init ?(config=default_config) () = init config
 
   module Document = struct
     type ref
@@ -367,14 +358,10 @@ module Firestore = struct
 end
 
 module Compute = struct
-  type config = <
-    projectId: string [@bs.get nullable]
-  > Js.t
-
   type t
 
   external init : config -> t = "@google-cloud/compute" [@@bs.module] [@@bs.new]
-  let init ?(config=config) () = init config
+  let init ?(config=default_config) () = init config
 
   module VM = struct
     type t
