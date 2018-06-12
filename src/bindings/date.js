@@ -2,26 +2,24 @@
 'use strict';
 
 
-var partial_arg = Date;
-
 function now() {
-  return partial_arg.now();
-}
-
-function getFullYear(d) {
-  return d.getFullYear();
-}
-
-function getDate(d) {
-  return d.getDate();
-}
-
-function getMonth(d) {
-  return d.getMonth();
+  return Date.now();
 }
 
 function init(prim) {
   return new Date(prim);
+}
+
+function getFullYear(prim) {
+  return prim.getFullYear();
+}
+
+function getDate(prim) {
+  return prim.getDate();
+}
+
+function getMonth(prim) {
+  return prim.getMonth();
 }
 
 exports.now = now;
@@ -29,4 +27,4 @@ exports.init = init;
 exports.getFullYear = getFullYear;
 exports.getDate = getDate;
 exports.getMonth = getMonth;
-/* partial_arg Not a pure module */
+/* No side effect */
