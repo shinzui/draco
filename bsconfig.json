@@ -2,7 +2,9 @@
   "name": "@lidcore/draco",
   "namespace": true,
   "sources": [
-    "src", "src/bindings"
+    "src",
+    "src/bindings",
+    "src/lib"
   ],
   "package-specs": {
     "module": "commonjs",
