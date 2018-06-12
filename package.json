@@ -26,7 +26,9 @@
     "@lidcore/bs-node": "^1.0.0",
     "bs-async-monad": "^1.0.0",
     "bs-platform": "^3.1.4",
-    "dotenv": "^6.0.0"
+    "dotenv": "^6.0.0",
+    "firebase-admin": "^5.12.1",
+    "firebase-functions": "^1.0.4"
   },
   "author": "Lidcore IT <it@lidcore.com>",
   "license": "BSD-2-Clause",
