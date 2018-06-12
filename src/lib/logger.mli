@@ -1,8 +1,5 @@
-module type Logger_t = sig
-  val info  : 'a -> unit
-  val error : 'a -> unit
-end
+val on_info : ('a -> unit) -> unit
+val info    : 'a -> unit
 
-module Make(Logger:Logger_t) : Logger_t
-
-include Logger_t
+val on_error : ('a -> unit) -> unit
+val error    : 'a -> unit

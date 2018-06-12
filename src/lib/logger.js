@@ -3,47 +3,47 @@
 
 var Curry = require("bs-platform/lib/js/curry.js");
 
-process.on("uncaughtException", (function (exn) {
-        throw exn;
-      }));
+var handlers = { };
 
-function info(s) {
-  console.log(s);
+function on_info(fn) {
+  handlers["info"] = fn;
   return /* () */0;
 }
 
-var error_log = (function (m) {
-    console.error(m);
-  });
+function on_error(fn) {
+  handlers["error"] = fn;
+  return /* () */0;
+}
+
+function info(s) {
+  console.log(s);
+  var match = handlers["info"];
+  if (match !== undefined) {
+    return Curry._1(match, s);
+  } else {
+    return /* () */0;
+  }
+}
+
+var error_log = function (m){console.error(m);};
 
 function error(s) {
-  return error_log(s);
-}
-
-function Make(funarg) {
-  process.on("uncaughtException", (function (exn) {
-          Curry._1(funarg[/* error */1], exn);
-          throw exn;
-        }));
-  var info = function (s) {
-    Curry._1(funarg[/* info */0], s);
-    console.log(s);
+  error_log(s);
+  var match = handlers["error"];
+  if (match !== undefined) {
+    return Curry._1(match, s);
+  } else {
     return /* () */0;
-  };
-  var error_log = (function (m) {
-    console.error(m);
-  });
-  var error = function (s) {
-    Curry._1(funarg[/* error */1], s);
-    return error_log(s);
-  };
-  return [
-          info,
-          error
-        ];
+  }
 }
 
-exports.Make = Make;
+process.on("uncaughtException", (function (exn) {
+        error(exn);
+        throw exn;
+      }));
+
+exports.on_info = on_info;
 exports.info = info;
+exports.on_error = on_error;
 exports.error = error;
 /*  Not a pure module */

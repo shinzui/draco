@@ -1,34 +1,36 @@
-module type Logger_t = sig
-  val info  : 'a -> unit
-  val error : 'a -> unit
-end
+let handlers = Js.Dict.empty ()
 
-module Make(Logger:Logger_t) = struct
-  type process
-  external process : process = "" [@@bs.val]
-  external on : process -> string -> (exn -> unit) -> unit = "" [@@bs.send]
+let on_info fn =
+  Js.Dict.set handlers "info" (Obj.magic fn)
 
-  let () =
-    on process "uncaughtException" (fun exn ->
-      Logger.error exn;
-      raise exn)
+let on_error fn =
+  Js.Dict.set handlers "error" (Obj.magic fn)
 
-  let info s =
-    Logger.info s;
-    Js.log s
+let info s =
+  Js.log s;
+  match Js.Dict.get handlers "info" with
+    | Some fn ->
+        let fn : 'a -> unit = Obj.magic fn in
+        fn s
+    | None -> ()
 
-  let error_log : 'a -> unit [@bs] = [%bs.raw{|function (m) {
-    console.error(m);
-  }|}]
+let error_log : 'a -> unit [@bs] = [%bs.raw fun m ->
+  "console.error(m);"
+]
 
-  let error s =
-    Logger.error s;
-    error_log (Obj.magic s) [@bs]
-end
+let error s =
+  error_log (Obj.magic s) [@bs];
+  match Js.Dict.get handlers "error" with
+    | Some fn ->
+        let fn : 'a -> unit = Obj.magic fn in
+        fn s
+    | None -> ()
 
-module Dummy = struct
-  let info _ = ()
-  let error _ = ()
-end
+type process
+external process : process = "" [@@bs.val]
+external on : process -> string -> (exn -> unit) -> unit = "" [@@bs.send]
 
-include Make(Dummy)
+let () =
+  on process "uncaughtException" (fun exn ->
+    error (Obj.magic exn);
+    raise exn)

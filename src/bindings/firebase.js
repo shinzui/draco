@@ -2,8 +2,8 @@
 'use strict';
 
 var Curry = require("bs-platform/lib/js/curry.js");
-var Env$LidcoreDraco = require("../env.js");
-var Utils$LidcoreDraco = require("../utils.js");
+var Env$LidcoreDraco = require("../lib/env.js");
+var Utils$LidcoreDraco = require("../lib/utils.js");
 var Buffer$LidcoreBsNode = require("@lidcore/bs-node/src/buffer.js");
 
 var loadFunctions = function (){require("firebase-functions")};
