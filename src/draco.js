@@ -384,41 +384,41 @@ function subscribe$1(maxMessages, topic, subscription, handler) {
                     });
                 }));
   };
-  return BsAsyncMonad.Callback[/* finish */26](/* Some */[exceptionHandler], BsAsyncMonad.Callback[/* >| */9](Gcloud$LidcoreDraco.PubSub[/* subscription */3](config, topic, pubsub, subscription), (function (s) {
-                    return Gcloud$LidcoreDraco.PubSub[/* subscribe */6](s, (function (msg) {
-                                  if (stopping[0]) {
-                                    return Gcloud$LidcoreDraco.PubSub[/* nack */5](msg);
-                                  } else {
-                                    var handler$1 = function () {
-                                      return BsAsyncMonad.Callback[/* >| */9](Curry._1(handler, msg.data), (function () {
-                                                    return Gcloud$LidcoreDraco.PubSub[/* ack */4](msg);
-                                                  }));
-                                    };
-                                    var id = msg.id;
-                                    var handler$2 = BsAsyncMonad.Callback[/* >> */5](is_duplicate(id), (function (ret) {
-                                            if (ret) {
-                                              log("Found duplicate message with id: " + (String(id) + ""));
-                                              Gcloud$LidcoreDraco.PubSub[/* ack */4](msg);
-                                              var partial_arg = BsAsyncMonad.Callback[/* return */2];
-                                              return (function (param) {
-                                                  return partial_arg(/* () */0, param);
-                                                });
-                                            } else {
-                                              return BsAsyncMonad.Callback[/* ||> */7](handler$1(/* () */0), (function (exn) {
-                                                            Gcloud$LidcoreDraco.PubSub[/* ack */4](msg);
-                                                            return BsAsyncMonad.Callback[/* >> */5](requeue$2(msg), (function () {
-                                                                          var partial_arg = BsAsyncMonad.Callback[/* fail */3];
-                                                                          return (function (param) {
-                                                                              return partial_arg(exn, param);
-                                                                            });
-                                                                        }));
-                                                          }));
-                                            }
-                                          }));
-                                    return BsAsyncMonad.Callback[/* finish */26](/* Some */[exceptionHandler], handler$2);
-                                  }
-                                }));
-                  })));
+  return BsAsyncMonad.Callback[/* >| */9](Gcloud$LidcoreDraco.PubSub[/* subscription */3](config, topic, pubsub, subscription), (function (s) {
+                return Gcloud$LidcoreDraco.PubSub[/* subscribe */6](s, (function (msg) {
+                              if (stopping[0]) {
+                                return Gcloud$LidcoreDraco.PubSub[/* nack */5](msg);
+                              } else {
+                                var handler$1 = function () {
+                                  return BsAsyncMonad.Callback[/* >| */9](Curry._1(handler, msg.data), (function () {
+                                                return Gcloud$LidcoreDraco.PubSub[/* ack */4](msg);
+                                              }));
+                                };
+                                var id = msg.id;
+                                var handler$2 = BsAsyncMonad.Callback[/* >> */5](is_duplicate(id), (function (ret) {
+                                        if (ret) {
+                                          log("Found duplicate message with id: " + (String(id) + ""));
+                                          Gcloud$LidcoreDraco.PubSub[/* ack */4](msg);
+                                          var partial_arg = BsAsyncMonad.Callback[/* return */2];
+                                          return (function (param) {
+                                              return partial_arg(/* () */0, param);
+                                            });
+                                        } else {
+                                          return BsAsyncMonad.Callback[/* ||> */7](handler$1(/* () */0), (function (exn) {
+                                                        Gcloud$LidcoreDraco.PubSub[/* ack */4](msg);
+                                                        return BsAsyncMonad.Callback[/* >> */5](requeue$2(msg), (function () {
+                                                                      var partial_arg = BsAsyncMonad.Callback[/* fail */3];
+                                                                      return (function (param) {
+                                                                          return partial_arg(exn, param);
+                                                                        });
+                                                                    }));
+                                                      }));
+                                        }
+                                      }));
+                                return BsAsyncMonad.Callback[/* finish */26](/* Some */[exceptionHandler], handler$2);
+                              }
+                            }));
+              }));
 }
 
 var Functions_000 = [

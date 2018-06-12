@@ -282,7 +282,7 @@ module Instances = struct
         exceptionHandler exn;
         return ()
     in
-    Callback.finish ~exceptionHandler (Gcloud.PubSub.subscription ~config ~topic pubsub subscription >| fun s ->
+    Gcloud.PubSub.subscription ~config ~topic pubsub subscription >| fun s ->
       Gcloud.PubSub.subscribe s (fun msg ->
         if not !stopping then
           begin
@@ -311,5 +311,5 @@ module Instances = struct
             Callback.finish ~exceptionHandler handler
           end
          else
-           Gcloud.PubSub.nack msg))
+           Gcloud.PubSub.nack msg)
 end
