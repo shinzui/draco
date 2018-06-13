@@ -20,13 +20,13 @@ let run () =
   in
   Callback.finish ~exceptionHandler (C.VM.getMetadata instance >> fun meta ->
     let items =
-      Array.to_list meta##metadata##items
+      Array.to_list (meta|.C.VM.metadata|.C.VM.items)
     in
     let label =
       let data =
-        List.find (fun el -> el##key = "draco_instance_type") items
+        List.find (fun el -> (el|.C.VM.key) = "draco_instance_type") items
       in
-      data##value
+      data|.C.VM.value
     in
     Logger.info {j|Starting instance $(label)|j};
     let handler = Hashtbl.find instances label in
@@ -74,7 +74,7 @@ let subscribe ~maxMessages ~topic ~subscription handler =
   in
   let requeue msg =
     let msg =
-      Utils.Json.parse_buf msg##data
+      Utils.Json.parse_buf (msg|.Gcloud.PubSub.data)
     in
     Common.requeue ~msg topic
   in
@@ -88,7 +88,7 @@ let subscribe ~maxMessages ~topic ~subscription handler =
       if not !stopping then
         begin
           let handler () =
-            handler msg##data >| fun _ ->
+            handler (msg|.Gcloud.PubSub.data) >| fun _ ->
               Gcloud.PubSub.ack msg
           in
           let handler () =
@@ -98,7 +98,7 @@ let subscribe ~maxMessages ~topic ~subscription handler =
                 Callback.fail exn
           in
           let handler =
-            let id = msg##id in
+            let id = msg|.Gcloud.PubSub.id in
             is_duplicate id >> fun ret ->
               if ret then
                begin

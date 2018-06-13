@@ -20,6 +20,7 @@
     "gcloud"
   ],
   "dependencies": {
+    "@google-cloud/compute": "^0.10.0",
     "@google-cloud/firestore": "^0.14.1",
     "@google-cloud/pubsub": "^0.18.0",
     "@lidcore/bs-express": "^1.0.0",
