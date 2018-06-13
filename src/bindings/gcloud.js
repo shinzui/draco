@@ -134,6 +134,7 @@ var Compute$1 = [
 ];
 
 exports.project = project;
+exports.default_config = default_config;
 exports.PubSub = PubSub;
 exports.Compute = Compute$1;
 /* project Not a pure module */

@@ -7,6 +7,8 @@ type config = {
   projectId : string [@bs.optional]
 } [@@bs.deriving abstract]
 
+val default_config : config
+
 module PubSub : sig
   type t
 
