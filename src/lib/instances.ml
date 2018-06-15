@@ -10,6 +10,7 @@ let register label handler =
   Hashtbl.add instances label handler
 
 module C = Gcloud.Compute
+module VM = Gcloud.Compute.Zone.VM
 
 let run () =
   let zone =
@@ -18,15 +19,15 @@ let run () =
   let instance =
      C.Zone.vm (C.zone (C.init ()) zone) (Os.hostname ())
   in
-  Callback.finish ~exceptionHandler (C.VM.getMetadata instance >> fun meta ->
+  Callback.finish ~exceptionHandler (VM.getMetadata instance >> fun meta ->
     let items =
-      Array.to_list (meta|.C.VM.metadata|.C.VM.items)
+      Array.to_list (meta|.VM.metadata|.VM.items)
     in
     let label =
       let data =
-        List.find (fun el -> (el|.C.VM.key) = "draco_instance_type") items
+        List.find (fun el -> (el|.VM.key) = "draco_instance_type") items
       in
-      data|.C.VM.value
+      data|.VM.value
     in
     Logger.info {j|Starting instance $(label)|j};
     let handler = Hashtbl.find instances label in

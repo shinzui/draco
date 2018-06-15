@@ -111,29 +111,86 @@ module Compute = struct
   external init : config -> t = "@google-cloud/compute" [@@bs.module] [@@bs.new]
   let init ?(config=default_config) () = init config
 
-  module VM = struct
+  module InstanceTemplate = struct
     type t
 
-    type item = {
-      key:   string;
-      value: string
-    } [@@bs.deriving abstract]
+    external delete : t -> unit Callback.callback -> unit = "" [@@bs.send]
 
-    type items = {
-      items: item array
-    } [@@bs.deriving abstract]
+    external get : t -> 'a Js.t Js.Nullable.t -> unit Callback.callback -> unit = "" [@@bs.send]
+    let get ?autoCreate t =
+      let options =
+        match autoCreate with
+          | None -> Js.Nullable.null
+          | Some options ->
+              let options = Obj.magic options in
+              options##autoCreate #= true;
+                Js.Nullable.return options
+      in
+      get t options
 
-    type metadata = {
-      metadata: items
-    } [@@bs.deriving abstract]
-
-    external getMetadata : t -> metadata Callback.callback -> unit = "" [@@bs.send]
   end
+  external instanceTemplate : t -> string -> InstanceTemplate.t = "" [@@bs.send]
 
   module Zone = struct
     type t
+
+    module Autoscaler = struct
+      type t
+      external exists : t -> bool Callback.callback -> unit = "" [@@bs.send]
+      external delete : t -> unit Callback.callback -> unit = "" [@@bs.send]
+
+      external get : t -> 'a Js.t Js.Nullable.t -> unit Callback.callback -> unit = "" [@@bs.send]
+      let get ?autoCreate t =
+        let options =
+          match autoCreate with
+            | None -> Js.Nullable.null
+            | Some options ->
+                let options = Obj.magic options in
+                options##autoCreate #= true;
+                Js.Nullable.return options
+        in
+        get t options
+
+      external create : t -> 'a Js.t -> unit Callback.callback -> unit = "" [@@bs.send]
+      let create ~options t = create t options
+    end
+    external autoscaler : t -> string -> Autoscaler.t = "" [@@bs.send]
+
+    module InstanceGroupManager = struct
+      type t
+      external exists : t -> bool Callback.callback -> unit = "" [@@bs.send]
+      external delete : t -> unit Callback.callback -> unit = "" [@@bs.send]
+
+      external create : t -> InstanceTemplate.t -> int -> 'a Js.t Js.Nullable.t -> unit Callback.callback -> unit = "" [@@bs.send]
+      let create ?options ~targetSize ~instanceTemplate t =
+        let options =
+          Js.Nullable.fromOption options
+        in
+        create t instanceTemplate targetSize options
+
+      external recreateVMs : t -> unit Callback.callback -> unit = "" [@@bs.send]
+    end
+    external instanceGroupManager : t -> string -> InstanceGroupManager.t = "" [@@bs.send]
+
+    module VM = struct
+      type t
+
+      type item = {
+        key:   string;
+        value: string
+      } [@@bs.deriving abstract]
+
+      type items = {
+        items: item array
+      } [@@bs.deriving abstract]
+
+      type metadata = {
+        metadata: items
+      } [@@bs.deriving abstract]
+
+      external getMetadata : t -> metadata Callback.callback -> unit = "" [@@bs.send]
+    end
     external vm : t -> string -> VM.t = "" [@@bs.send]
   end
-
   external zone : t -> string -> Zone.t = "" [@@bs.send]
 end

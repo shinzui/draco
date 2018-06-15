@@ -4,6 +4,7 @@
 var $$Array = require("bs-platform/lib/js/array.js");
 var BsAsyncMonad = require("bs-async-monad/src/bsAsyncMonad.js");
 var Env$LidcoreDraco = require("../lib/env.js");
+var Js_null_undefined = require("bs-platform/lib/js/js_null_undefined.js");
 var Pubsub = require("@google-cloud/pubsub");
 var Buffer$LidcoreBsNode = require("@lidcore/bs-node/src/buffer.js");
 var Compute = require("@google-cloud/compute");
@@ -93,6 +94,44 @@ function init$1($staropt$star, _) {
   return new Compute($staropt$star ? $staropt$star[0] : default_config);
 }
 
+function get(autoCreate, t) {
+  var options;
+  if (autoCreate) {
+    var options$1 = autoCreate[0];
+    options$1.autoCreate = true;
+    options = options$1;
+  } else {
+    options = null;
+  }
+  return (function (param) {
+      t.get(options, param);
+      return /* () */0;
+    });
+}
+
+function get$1(autoCreate, t) {
+  var options;
+  if (autoCreate) {
+    var options$1 = autoCreate[0];
+    options$1.autoCreate = true;
+    options = options$1;
+  } else {
+    options = null;
+  }
+  return (function (param) {
+      t.get(options, param);
+      return /* () */0;
+    });
+}
+
+function create(options, targetSize, instanceTemplate, t) {
+  var options$1 = Js_null_undefined.fromOption(options);
+  return (function (param) {
+      t.create(instanceTemplate, targetSize, options$1, param);
+      return /* () */0;
+    });
+}
+
 function PubSub_004(prim) {
   prim.ack();
   return /* () */0;
@@ -113,16 +152,57 @@ var PubSub = [
   subscribe
 ];
 
-var Compute_001 = [(function (prim, prim$1) {
-      prim.getMetadata(prim$1);
+var Compute_001 = [
+  get,
+  (function (prim, prim$1) {
+      prim.delete(prim$1);
       return /* () */0;
-    })];
+    })
+];
 
-var Compute_002 = [(function (prim, prim$1) {
+function Compute_002(prim, prim$1) {
+  return prim.instanceTemplate(prim$1);
+}
+
+var Compute_003 = [
+  [
+    get$1,
+    (function (prim, prim$1) {
+        prim.delete(prim$1);
+        return /* () */0;
+      })
+  ],
+  (function (prim, prim$1) {
+      return prim.autoscaler(prim$1);
+    }),
+  [
+    (function (prim, prim$1) {
+        prim.exists(prim$1);
+        return /* () */0;
+      }),
+    create,
+    (function (prim, prim$1) {
+        prim.delete(prim$1);
+        return /* () */0;
+      }),
+    (function (prim, prim$1) {
+        prim.recreateVMs(prim$1);
+        return /* () */0;
+      })
+  ],
+  (function (prim, prim$1) {
+      return prim.instanceGroupManager(prim$1);
+    }),
+  [(function (prim, prim$1) {
+        prim.getMetadata(prim$1);
+        return /* () */0;
+      })],
+  (function (prim, prim$1) {
       return prim.vm(prim$1);
-    })];
+    })
+];
 
-function Compute_003(prim, prim$1) {
+function Compute_004(prim, prim$1) {
   return prim.zone(prim$1);
 }
 
@@ -130,7 +210,8 @@ var Compute$1 = [
   init$1,
   Compute_001,
   Compute_002,
-  Compute_003
+  Compute_003,
+  Compute_004
 ];
 
 exports.project = project;

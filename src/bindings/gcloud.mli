@@ -49,29 +49,56 @@ module Compute : sig
 
   val init : ?config:config -> unit -> t
 
-  module VM : sig
+  module InstanceTemplate : sig
     type t
 
-    type item = {
-      key:   string;
-      value: string
-    } [@@bs.deriving abstract]
-
-    type items = {
-      items: item array
-    } [@@bs.deriving abstract]
-
-    type metadata = {
-      metadata: items
-    } [@@bs.deriving abstract]
-
-    val getMetadata : t -> metadata Callback.t
+    val get    : ?autoCreate:'a Js.t -> t -> unit Callback.t
+    val delete : t -> unit Callback.t
   end
+  val instanceTemplate : t -> string -> InstanceTemplate.t
 
   module Zone : sig
     type t
+
+    module Autoscaler : sig
+      type t
+
+      val get    : ?autoCreate:'a Js.t -> t -> unit Callback.t
+      val delete : t -> unit Callback.t
+    end
+    val autoscaler : t -> string -> Autoscaler.t
+
+    module InstanceGroupManager : sig
+      type t
+
+      val exists      : t -> bool Callback.t
+      val create      : ?options:'a Js.t -> targetSize:int ->
+                        instanceTemplate:InstanceTemplate.t ->
+                        t -> unit Callback.t
+      val delete      : t -> unit Callback.t
+      val recreateVMs : t -> unit Callback.t
+    end
+    val instanceGroupManager : t -> string -> InstanceGroupManager.t
+
+    module VM : sig
+      type t
+
+      type item = {
+        key:   string;
+        value: string
+      } [@@bs.deriving abstract]
+
+      type items = {
+        items: item array
+      } [@@bs.deriving abstract]
+
+      type metadata = {
+        metadata: items
+      } [@@bs.deriving abstract]
+
+      val getMetadata : t -> metadata Callback.t
+    end
     val vm : t -> string -> VM.t
   end
-
   val zone : t -> string -> Zone.t
 end

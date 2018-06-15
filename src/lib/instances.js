@@ -28,8 +28,8 @@ function register(label, handler) {
 
 function run() {
   var zone = Env$LidcoreDraco.get(/* Some */["us-west1-b"], "zone");
-  var instance = Curry._2(Gcloud$LidcoreDraco.Compute[/* Zone */2][/* vm */0], Gcloud$LidcoreDraco.Compute[/* zone */3](Gcloud$LidcoreDraco.Compute[/* init */0](/* None */0, /* () */0), zone), Os$LidcoreBsNode.hostname(/* () */0));
-  return BsAsyncMonad.Callback[/* finish */26](/* Some */[exceptionHandler], BsAsyncMonad.Callback[/* >> */5](Curry._1(Gcloud$LidcoreDraco.Compute[/* VM */1][/* getMetadata */0], instance), (function (meta) {
+  var instance = Curry._2(Gcloud$LidcoreDraco.Compute[/* Zone */3][/* vm */5], Gcloud$LidcoreDraco.Compute[/* zone */4](Gcloud$LidcoreDraco.Compute[/* init */0](/* None */0, /* () */0), zone), Os$LidcoreBsNode.hostname(/* () */0));
+  return BsAsyncMonad.Callback[/* finish */26](/* Some */[exceptionHandler], BsAsyncMonad.Callback[/* >> */5](Curry._1(Gcloud$LidcoreDraco.Compute[/* Zone */3][/* VM */4][/* getMetadata */0], instance), (function (meta) {
                     var items = $$Array.to_list(meta.metadata.items);
                     var data = List.find((function (el) {
                             return el.key === "draco_instance_type";
