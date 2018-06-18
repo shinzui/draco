@@ -138,7 +138,67 @@ function subscribe(maxMessages, topic, subscription, handler) {
               }));
 }
 
-exports.register = register;
-exports.run = run;
-exports.subscribe = subscribe;
+function initialize($staropt$star, config) {
+  var restart = $staropt$star ? $staropt$star[0] : true;
+  var name = config.name;
+  var zone = config.zone;
+  var serviceAccount = config.serviceAccount;
+  var projectId = config.projectId;
+  var instanceTemplateConfig = Curry._2(config.instanceTemplate, serviceAccount, projectId);
+  instanceTemplateConfig.properties.metadata = {
+    items: /* array */[{
+        key: "mode",
+        value: name
+      }]
+  };
+  var autoscaleConfig = config.autoscale;
+  autoscaleConfig.target = name;
+  var compute = Gcloud$LidcoreDraco.Compute[/* init */0](/* Some */[{
+          projectId: projectId
+        }], /* () */0);
+  var instanceTemplate = Gcloud$LidcoreDraco.Compute[/* instanceTemplate */2](compute, name);
+  var zone$1 = Gcloud$LidcoreDraco.Compute[/* zone */4](compute, zone);
+  var instanceGroupManager = Curry._2(Gcloud$LidcoreDraco.Compute[/* Zone */3][/* instanceGroupManager */3], zone$1, name);
+  var autoscaler = Curry._2(Gcloud$LidcoreDraco.Compute[/* Zone */3][/* autoscaler */1], zone$1, name);
+  var createInstanceTemplate = function () {
+    return Curry._2(Gcloud$LidcoreDraco.Compute[/* InstanceTemplate */1][/* get */0], /* Some */[instanceTemplateConfig], instanceTemplate);
+  };
+  var createGroup = function () {
+    return BsAsyncMonad.Callback[/* >> */5](Curry._1(Gcloud$LidcoreDraco.Compute[/* Zone */3][/* InstanceGroupManager */2][/* exists */0], instanceGroupManager), (function (exists) {
+                  if (exists) {
+                    var partial_arg = BsAsyncMonad.Callback[/* return */2];
+                    return (function (param) {
+                        return partial_arg(/* () */0, param);
+                      });
+                  } else {
+                    return Curry._4(Gcloud$LidcoreDraco.Compute[/* Zone */3][/* InstanceGroupManager */2][/* create */1], /* None */0, 0, instanceTemplate, instanceGroupManager);
+                  }
+                }));
+  };
+  return BsAsyncMonad.Callback[/* >> */5](createInstanceTemplate(/* () */0), (function () {
+                return BsAsyncMonad.Callback[/* >> */5](createGroup(/* () */0), (function () {
+                              return BsAsyncMonad.Callback[/* >> */5](Curry._2(Gcloud$LidcoreDraco.Compute[/* Zone */3][/* Autoscaler */0][/* get */0], /* Some */[autoscaleConfig], autoscaler), (function () {
+                                            if (restart) {
+                                              return Curry._1(Gcloud$LidcoreDraco.Compute[/* Zone */3][/* InstanceGroupManager */2][/* recreateVMs */3], instanceGroupManager);
+                                            } else {
+                                              var partial_arg = BsAsyncMonad.Callback[/* return */2];
+                                              return (function (param) {
+                                                  return partial_arg(/* () */0, param);
+                                                });
+                                            }
+                                          }));
+                            }));
+              }));
+}
+
+var Config = /* module */[/* initialize */initialize];
+
+var Runtime = [
+  subscribe,
+  register,
+  run
+];
+
+exports.Runtime = Runtime;
+exports.Config = Config;
 /* instances Not a pure module */
