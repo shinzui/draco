@@ -20,7 +20,7 @@
     "gcloud"
   ],
   "dependencies": {
-    "@google-cloud/compute": "git+https://github.com/toots/nodejs-compute.git",
+    "@google-cloud/compute": "git+https://github.com/toots/nodejs-compute.git#instance-group-manager",
     "@google-cloud/firestore": "^0.14.1",
     "@google-cloud/pubsub": "^0.18.0",
     "@lidcore/bs-express": "^1.0.0",
