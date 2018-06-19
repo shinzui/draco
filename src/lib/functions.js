@@ -76,7 +76,7 @@ function make_error(statusCode, body) {
 
 function error(code, msg) {
   var partial_arg = make_error(code, msg);
-  var partial_arg$1 = BsAsyncMonad.Callback[/* fail */3];
+  var partial_arg$1 = BsAsyncMonad.Callback[/* fail */1];
   return (function (param) {
       return partial_arg$1(partial_arg, param);
     });
@@ -102,7 +102,7 @@ function response($staropt$star, headers, msg) {
       headers: headers$1,
       body: match
     };
-    var partial_arg$1 = BsAsyncMonad.Callback[/* return */2];
+    var partial_arg$1 = BsAsyncMonad.Callback[/* return */0];
     return (function (param) {
         return partial_arg$1(partial_arg, param);
       });
@@ -116,7 +116,7 @@ function response($staropt$star, headers, msg) {
       $$Error,
       partial_arg_001
     ];
-    var partial_arg$3 = BsAsyncMonad.Callback[/* fail */3];
+    var partial_arg$3 = BsAsyncMonad.Callback[/* fail */1];
     return (function (param) {
         return partial_arg$3(partial_arg$2, param);
       });
@@ -131,7 +131,7 @@ function authenticate(req) {
     var re = (/Token token=(.+)/);
     var match$1 = re.exec(match);
     if (match$1 !== null && Caml_obj.caml_equal(Caml_array.caml_array_get(match$1, 1), token)) {
-      var partial_arg = BsAsyncMonad.Callback[/* return */2];
+      var partial_arg = BsAsyncMonad.Callback[/* return */0];
       return (function (param) {
           return partial_arg(/* () */0, param);
         });
@@ -171,12 +171,12 @@ function add_route(meth, $staropt$star, app, route, handler) {
     if (auth) {
       tmp = authenticate(req);
     } else {
-      var partial_arg = BsAsyncMonad.Callback[/* return */2];
+      var partial_arg = BsAsyncMonad.Callback[/* return */0];
       tmp = (function (param) {
           return partial_arg(/* () */0, param);
         });
     }
-    return BsAsyncMonad.Callback[/* >> */5](tmp, (function () {
+    return BsAsyncMonad.Callback[/* >> */3](tmp, (function () {
                   return Curry._1(handler, req);
                 }));
   };
@@ -192,7 +192,7 @@ function add_route(meth, $staropt$star, app, route, handler) {
                               headers: null,
                               body: "Internal server error"
                             };
-                            var partial_arg$2 = BsAsyncMonad.Callback[/* return */2];
+                            var partial_arg$2 = BsAsyncMonad.Callback[/* return */0];
                             var error = function (param) {
                               return partial_arg$2(partial_arg$1, param);
                             };
@@ -240,9 +240,9 @@ function $$export(app) {
 function subscribe(topic, fn) {
   return Curry._2(Firebase$LidcoreDraco.Functions[/* PubSub */2][/* on_publish */0], topic, (function (message, _) {
                 var json = Curry._1(Firebase$LidcoreDraco.Functions[/* PubSub */2][/* json */1], message);
-                return BsAsyncMonad.Callback[/* to_promise */1](BsAsyncMonad.Callback[/* ||> */7](Curry._1(fn, json), (function (exn) {
-                                  return BsAsyncMonad.Callback[/* >> */5](Common$LidcoreDraco.requeue(json, topic), (function () {
-                                                var partial_arg = BsAsyncMonad.Callback[/* fail */3];
+                return BsAsyncMonad.to_promise(BsAsyncMonad.Callback[/* ||> */5](Curry._1(fn, json), (function (exn) {
+                                  return BsAsyncMonad.Callback[/* >> */3](Common$LidcoreDraco.requeue(json, topic), (function () {
+                                                var partial_arg = BsAsyncMonad.Callback[/* fail */1];
                                                 return (function (param) {
                                                     return partial_arg(exn, param);
                                                   });

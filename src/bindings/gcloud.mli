@@ -57,10 +57,12 @@ module Compute : sig
   module InstanceTemplate : sig
     type t
 
-    val get    : ?autoCreate:'a Js.t -> t -> unit Callback.t
+    val exists : t -> bool Callback.t
+    val get    : t -> unit Callback.t
     val delete : t -> unit Callback.t
   end
   val instanceTemplate : t -> string -> InstanceTemplate.t
+  val createInstanceTemplate : t -> string -> 'a Js.t -> InstanceTemplate.t Callback.t
 
   module Zone : sig
     type t
@@ -78,6 +80,7 @@ module Compute : sig
       type t
 
       val exists      : t -> bool Callback.t
+      val get         : t -> unit Callback.t
       val delete      : t -> unit Callback.t
       val recreateVMs : t -> unit Callback.t
     end

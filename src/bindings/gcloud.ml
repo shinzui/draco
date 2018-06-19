@@ -122,22 +122,12 @@ module Compute = struct
   module InstanceTemplate = struct
     type t
 
+    external exists : t -> bool Callback.callback -> unit = "" [@@bs.send]
+    external get    : t -> unit Callback.callback -> unit = "" [@@bs.send]
     external delete : t -> unit Callback.callback -> unit = "" [@@bs.send]
-
-    external get : t -> 'a Js.t Js.Nullable.t -> unit Callback.callback -> unit = "" [@@bs.send]
-    let get ?autoCreate t =
-      let options =
-        match autoCreate with
-          | None -> Js.Nullable.null
-          | Some options ->
-              let options = Obj.magic options in
-              options##autoCreate #= true;
-                Js.Nullable.return options
-      in
-      get t options
-
   end
   external instanceTemplate : t -> string -> InstanceTemplate.t = "" [@@bs.send]
+  external createInstanceTemplate : t -> string -> 'a Js.t -> InstanceTemplate.t Callback.callback -> unit = "" [@@bs.send]
 
   module Zone = struct
     type t
@@ -153,6 +143,7 @@ module Compute = struct
     module InstanceGroupManager = struct
       type t
       external exists : t -> bool Callback.callback -> unit = "" [@@bs.send]
+      external get    : t -> unit Callback.callback -> unit = "" [@@bs.send]
       external delete : t -> unit Callback.callback -> unit = "" [@@bs.send]
       external recreateVMs : t -> unit Callback.callback -> unit = "" [@@bs.send]
     end

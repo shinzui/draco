@@ -28,8 +28,8 @@ function register(label, handler) {
 
 function run() {
   var zone = Env$LidcoreDraco.get(/* Some */["us-west1-b"], "zone");
-  var instance = Curry._2(Gcloud$LidcoreDraco.Compute[/* Zone */3][/* vm */7], Gcloud$LidcoreDraco.Compute[/* zone */4](Gcloud$LidcoreDraco.Compute[/* init */0](/* None */0, /* () */0), zone), Os$LidcoreBsNode.hostname(/* () */0));
-  return BsAsyncMonad.Callback[/* finish */26](/* Some */[exceptionHandler], BsAsyncMonad.Callback[/* >> */5](Curry._1(Gcloud$LidcoreDraco.Compute[/* Zone */3][/* VM */6][/* getMetadata */0], instance), (function (meta) {
+  var instance = Curry._2(Gcloud$LidcoreDraco.Compute[/* Zone */4][/* vm */7], Gcloud$LidcoreDraco.Compute[/* zone */5](Gcloud$LidcoreDraco.Compute[/* init */0](/* None */0, /* () */0), zone), Os$LidcoreBsNode.hostname(/* () */0));
+  return BsAsyncMonad.Callback[/* finish */27](/* Some */[exceptionHandler], BsAsyncMonad.Callback[/* >> */3](Curry._1(Gcloud$LidcoreDraco.Compute[/* Zone */4][/* VM */6][/* getMetadata */0], instance), (function (meta) {
                     var items = $$Array.to_list(meta.metadata.items);
                     var data = List.find((function (el) {
                             return el.key === "draco_instance_type";
@@ -70,16 +70,16 @@ function get_redis() {
 function is_duplicate(id) {
   var redis = get_redis(/* () */0);
   var key = msg_check_key(id);
-  return BsAsyncMonad.Callback[/* >> */5]((function (param) {
+  return BsAsyncMonad.Callback[/* >> */3]((function (param) {
                 return Redis$LidcoreDraco.setnx(redis, key, "foo", param);
               }), (function (n) {
                 if (n === 0) {
-                  var partial_arg = BsAsyncMonad.Callback[/* return */2];
+                  var partial_arg = BsAsyncMonad.Callback[/* return */0];
                   return (function (param) {
                       return partial_arg(true, param);
                     });
                 } else {
-                  return BsAsyncMonad.Callback[/* >| */9]((function (param) {
+                  return BsAsyncMonad.Callback[/* >| */7]((function (param) {
                                 return Redis$LidcoreDraco.expire(redis, key, msg_check_expire, param);
                               }), (function () {
                                 return false;
@@ -105,38 +105,38 @@ function subscribe(maxMessages, topic, subscription, handler) {
     return Common$LidcoreDraco.requeue(msg$1, topic);
   };
   var requeue$1 = function (msg) {
-    return BsAsyncMonad.Callback[/* ||> */7](requeue(msg), (function (exn) {
+    return BsAsyncMonad.Callback[/* ||> */5](requeue(msg), (function (exn) {
                   Curry._1(Config$LidcoreDraco.error_handler[0], exn);
-                  var partial_arg = BsAsyncMonad.Callback[/* return */2];
+                  var partial_arg = BsAsyncMonad.Callback[/* return */0];
                   return (function (param) {
                       return partial_arg(/* () */0, param);
                     });
                 }));
   };
-  return BsAsyncMonad.Callback[/* >| */9](Gcloud$LidcoreDraco.PubSub[/* subscription */3](config, topic, pubsub, subscription), (function (s) {
+  return BsAsyncMonad.Callback[/* >| */7](Gcloud$LidcoreDraco.PubSub[/* subscription */3](config, topic, pubsub, subscription), (function (s) {
                 return Gcloud$LidcoreDraco.PubSub[/* subscribe */6](s, (function (msg) {
                               if (stopping[0]) {
                                 return Gcloud$LidcoreDraco.PubSub[/* nack */5](msg);
                               } else {
                                 var handler$1 = function () {
-                                  return BsAsyncMonad.Callback[/* >| */9](Curry._1(handler, msg.data), (function () {
+                                  return BsAsyncMonad.Callback[/* >| */7](Curry._1(handler, msg.data), (function () {
                                                 return Gcloud$LidcoreDraco.PubSub[/* ack */4](msg);
                                               }));
                                 };
                                 var id = msg.id;
-                                var handler$2 = BsAsyncMonad.Callback[/* >> */5](is_duplicate(id), (function (ret) {
+                                var handler$2 = BsAsyncMonad.Callback[/* >> */3](is_duplicate(id), (function (ret) {
                                         if (ret) {
                                           log("Found duplicate message with id: " + (String(id) + ""));
                                           Gcloud$LidcoreDraco.PubSub[/* ack */4](msg);
-                                          var partial_arg = BsAsyncMonad.Callback[/* return */2];
+                                          var partial_arg = BsAsyncMonad.Callback[/* return */0];
                                           return (function (param) {
                                               return partial_arg(/* () */0, param);
                                             });
                                         } else {
-                                          return BsAsyncMonad.Callback[/* ||> */7](handler$1(/* () */0), (function (exn) {
+                                          return BsAsyncMonad.Callback[/* ||> */5](handler$1(/* () */0), (function (exn) {
                                                         Gcloud$LidcoreDraco.PubSub[/* ack */4](msg);
-                                                        return BsAsyncMonad.Callback[/* >> */5](requeue$1(msg), (function () {
-                                                                      var partial_arg = BsAsyncMonad.Callback[/* fail */3];
+                                                        return BsAsyncMonad.Callback[/* >> */3](requeue$1(msg), (function () {
+                                                                      var partial_arg = BsAsyncMonad.Callback[/* fail */1];
                                                                       return (function (param) {
                                                                           return partial_arg(exn, param);
                                                                         });
@@ -144,7 +144,7 @@ function subscribe(maxMessages, topic, subscription, handler) {
                                                       }));
                                         }
                                       }));
-                                return BsAsyncMonad.Callback[/* finish */26](/* Some */[exceptionHandler], handler$2);
+                                return BsAsyncMonad.Callback[/* finish */27](/* Some */[exceptionHandler], handler$2);
                               }
                             }));
               }));
@@ -176,53 +176,54 @@ function initialize($staropt$star, config) {
           baseUrl: "https://www.googleapis.com/compute/beta"
         }], /* () */0);
   var instanceTemplate = Gcloud$LidcoreDraco.Compute[/* instanceTemplate */2](compute, name);
-  var zone$1 = Gcloud$LidcoreDraco.Compute[/* zone */4](compute, zone);
-  var instanceGroupManager = Curry._2(Gcloud$LidcoreDraco.Compute[/* Zone */3][/* instanceGroupManager */4], zone$1, name);
-  var autoscaler = Curry._2(Gcloud$LidcoreDraco.Compute[/* Zone */3][/* autoscaler */1], zone$1, name);
+  var zone$1 = Gcloud$LidcoreDraco.Compute[/* zone */5](compute, zone);
+  var instanceGroupManager = Curry._2(Gcloud$LidcoreDraco.Compute[/* Zone */4][/* instanceGroupManager */4], zone$1, name);
+  var autoscaler = Curry._2(Gcloud$LidcoreDraco.Compute[/* Zone */4][/* autoscaler */1], zone$1, name);
   var createInstanceTemplate = function () {
-    return Curry._2(Gcloud$LidcoreDraco.Compute[/* InstanceTemplate */1][/* get */0], /* Some */[instanceTemplateConfig], instanceTemplate);
+    var partial_arg = Curry._1(Gcloud$LidcoreDraco.Compute[/* InstanceTemplate */1][/* exists */0], instanceTemplate);
+    var partial_arg$1 = BsAsyncMonad.Callback[/* async_unless */14];
+    return (function (param) {
+        return partial_arg$1(partial_arg, (function () {
+                      var partial_arg = Gcloud$LidcoreDraco.Compute[/* createInstanceTemplate */3];
+                      return BsAsyncMonad.Callback[/* >> */3]((function (param) {
+                                    return partial_arg(compute, name, instanceTemplateConfig, param);
+                                  }), Gcloud$LidcoreDraco.Compute[/* InstanceTemplate */1][/* get */1]);
+                    }), param);
+      });
   };
   var createGroup = function () {
-    return BsAsyncMonad.Callback[/* >> */5](Curry._1(Gcloud$LidcoreDraco.Compute[/* Zone */3][/* InstanceGroupManager */3][/* exists */0], instanceGroupManager), (function (exists) {
-                  if (exists) {
-                    var partial_arg = BsAsyncMonad.Callback[/* return */2];
-                    return (function (param) {
-                        return partial_arg(/* () */0, param);
-                      });
-                  } else {
-                    var partial_arg$1 = Curry._5(Gcloud$LidcoreDraco.Compute[/* Zone */3][/* createInstanceGroupManager */5], /* None */0, 0, instanceTemplate, zone$1, name);
-                    var partial_arg$2 = BsAsyncMonad.Callback[/* discard */12];
-                    return (function (param) {
-                        return partial_arg$2(partial_arg$1, param);
-                      });
-                  }
-                }));
+    var partial_arg = Curry._1(Gcloud$LidcoreDraco.Compute[/* Zone */4][/* InstanceGroupManager */3][/* exists */0], instanceGroupManager);
+    var partial_arg$1 = BsAsyncMonad.Callback[/* async_unless */14];
+    return (function (param) {
+        return partial_arg$1(partial_arg, (function () {
+                      return BsAsyncMonad.Callback[/* >> */3](Curry._5(Gcloud$LidcoreDraco.Compute[/* Zone */4][/* createInstanceGroupManager */5], /* None */0, 0, instanceTemplate, zone$1, name), Gcloud$LidcoreDraco.Compute[/* Zone */4][/* InstanceGroupManager */3][/* get */1]);
+                    }), param);
+      });
   };
   var createAutoscaler = function () {
-    return BsAsyncMonad.Callback[/* >> */5](Curry._1(Gcloud$LidcoreDraco.Compute[/* Zone */3][/* Autoscaler */0][/* exists */0], autoscaler), (function (exists) {
-                  if (exists) {
-                    var partial_arg = BsAsyncMonad.Callback[/* return */2];
-                    return (function (param) {
-                        return partial_arg(/* () */0, param);
-                      });
-                  } else {
-                    var partial_arg$1 = Curry._3(Gcloud$LidcoreDraco.Compute[/* Zone */3][/* createAutoscaler */2], zone$1, name, autoscaleConfig);
-                    var partial_arg$2 = BsAsyncMonad.Callback[/* discard */12];
-                    return (function (param) {
-                        return partial_arg$2(partial_arg$1, param);
-                      });
-                  }
-                }));
+    var partial_arg = Curry._1(Gcloud$LidcoreDraco.Compute[/* Zone */4][/* Autoscaler */0][/* exists */0], autoscaler);
+    var partial_arg$1 = BsAsyncMonad.Callback[/* async_unless */14];
+    return (function (param) {
+        return partial_arg$1(partial_arg, (function () {
+                      var partial_arg = Curry._3(Gcloud$LidcoreDraco.Compute[/* Zone */4][/* createAutoscaler */2], zone$1, name, autoscaleConfig);
+                      var partial_arg$1 = BsAsyncMonad.Callback[/* discard */10];
+                      return (function (param) {
+                          return partial_arg$1(partial_arg, param);
+                        });
+                    }), param);
+      });
   };
-  return BsAsyncMonad.Callback[/* >> */5](BsAsyncMonad.Callback[/* >> */5](BsAsyncMonad.Callback[/* >> */5](createInstanceTemplate(/* () */0), createGroup), createAutoscaler), (function () {
-                if (restart) {
-                  return Curry._1(Gcloud$LidcoreDraco.Compute[/* Zone */3][/* InstanceGroupManager */3][/* recreateVMs */2], instanceGroupManager);
-                } else {
-                  var partial_arg = BsAsyncMonad.Callback[/* return */2];
-                  return (function (param) {
-                      return partial_arg(/* () */0, param);
-                    });
-                }
+  return BsAsyncMonad.Callback[/* >> */3](BsAsyncMonad.Callback[/* >> */3](BsAsyncMonad.Callback[/* >> */3](createInstanceTemplate(/* () */0), createGroup), createAutoscaler), (function () {
+                var partial_arg = BsAsyncMonad.Callback[/* return */0];
+                var partial_arg$1 = function (param) {
+                  return partial_arg(restart, param);
+                };
+                var partial_arg$2 = BsAsyncMonad.Callback[/* async_if */13];
+                return (function (param) {
+                    return partial_arg$2(partial_arg$1, (function () {
+                                  return Curry._1(Gcloud$LidcoreDraco.Compute[/* Zone */4][/* InstanceGroupManager */3][/* recreateVMs */3], instanceGroupManager);
+                                }), param);
+                  });
               }));
 }
 

@@ -156,5 +156,5 @@ module Event = struct
           Common.requeue ~msg:json topic >> fun () ->
             Callback.fail exn
       in
-      Callback.to_promise fn)
+      to_promise fn)
 end

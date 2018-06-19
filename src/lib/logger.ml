@@ -26,11 +26,9 @@ let error s =
         fn s
     | None -> ()
 
-type process
-external process : process = "" [@@bs.val]
-external on : process -> string -> (exn -> unit) -> unit = "" [@@bs.send]
+external on : string -> (exn -> unit) -> unit = "" [@@bs.val] [@@bs.scope "process"]
 
 let () =
-  on process "uncaughtException" (fun exn ->
+  on "uncaughtException" (fun exn ->
     error (Obj.magic exn);
     raise exn)

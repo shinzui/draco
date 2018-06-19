@@ -17,7 +17,7 @@ function requeue(msg, topic) {
   var msg$1 = Utils$LidcoreDraco.Json[/* stringify */2](msg);
   if (retry >= Config$LidcoreDraco.maxMessageRetries[0]) {
     var partial_arg = JsError$LidcoreDraco.make("[" + (String(topic) + ("] Message reached max retries: " + (String(msg$1) + ""))));
-    var partial_arg$1 = BsAsyncMonad.Callback[/* fail */3];
+    var partial_arg$1 = BsAsyncMonad.Callback[/* fail */1];
     return (function (param) {
         return partial_arg$1(partial_arg, param);
       });

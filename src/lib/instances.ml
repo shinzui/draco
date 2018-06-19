@@ -188,29 +188,31 @@ module Config = struct
       Gcloud.Compute.Zone.autoscaler zone name
     in
     let createInstanceTemplate () = 
-      Gcloud.Compute.InstanceTemplate.get ~autoCreate:instanceTemplateConfig instanceTemplate
+      async_unless
+        (Gcloud.Compute.InstanceTemplate.exists instanceTemplate)
+        (fun () ->
+          Gcloud.Compute.createInstanceTemplate compute name instanceTemplateConfig >>
+            Gcloud.Compute.InstanceTemplate.get)
     in
     let createGroup () =
-      Gcloud.Compute.Zone.InstanceGroupManager.exists instanceGroupManager >> fun exists ->
-      if exists then
-        return ()
-      else
-        discard(Gcloud.Compute.Zone.createInstanceGroupManager ~targetSize:0
-                                                       ~instanceTemplate
-                                                       zone
-                                                       name)
+      async_unless
+        (Gcloud.Compute.Zone.InstanceGroupManager.exists instanceGroupManager)
+        (fun () ->
+          Gcloud.Compute.Zone.createInstanceGroupManager ~targetSize:0
+                                                         ~instanceTemplate
+                                                         zone
+                                                         name >>
+            Gcloud.Compute.Zone.InstanceGroupManager.get)
     in
     let createAutoscaler () =
-      Gcloud.Compute.Zone.Autoscaler.exists autoscaler >> fun exists ->
-        if exists then
-          return ()
-        else
-          discard(Gcloud.Compute.Zone.createAutoscaler zone name autoscaleConfig)
+      async_unless
+        (Gcloud.Compute.Zone.Autoscaler.exists autoscaler)
+        (fun () ->
+          discard(Gcloud.Compute.Zone.createAutoscaler zone name autoscaleConfig))
     in
     createInstanceTemplate () >> createGroup >> createAutoscaler >> fun () ->
-      if restart then
-        Gcloud.Compute.Zone.InstanceGroupManager.recreateVMs instanceGroupManager
-      else
-        return ()
-          
+      async_if
+        (return restart)
+        (fun () ->
+          Gcloud.Compute.Zone.InstanceGroupManager.recreateVMs instanceGroupManager)
  end

@@ -21,22 +21,22 @@ function init($staropt$star, _) {
 
 function get_topic(pubsub, name) {
   var partial_arg = pubsub.topic(name);
-  var partial_arg$1 = BsAsyncMonad.Callback[/* return */2];
+  var partial_arg$1 = BsAsyncMonad.Callback[/* return */0];
   return (function (param) {
       return partial_arg$1(partial_arg, param);
     });
 }
 
 function subscription(config, topic, client, name) {
-  return BsAsyncMonad.Callback[/* >> */5](get_topic(client, topic), (function (topic) {
+  return BsAsyncMonad.Callback[/* >> */3](get_topic(client, topic), (function (topic) {
                 var subscription = topic.subscription(name, config);
-                return BsAsyncMonad.Callback[/* >> */5]((function (param) {
+                return BsAsyncMonad.Callback[/* >> */3]((function (param) {
                               subscription.exists(param);
                               return /* () */0;
                             }), (function (ret) {
                               var tmp;
                               if (ret) {
-                                var partial_arg = BsAsyncMonad.Callback[/* return */2];
+                                var partial_arg = BsAsyncMonad.Callback[/* return */0];
                                 tmp = (function (param) {
                                     return partial_arg(/* () */0, param);
                                   });
@@ -46,8 +46,8 @@ function subscription(config, topic, client, name) {
                                     return /* () */0;
                                   });
                               }
-                              return BsAsyncMonad.Callback[/* >> */5](tmp, (function () {
-                                            var partial_arg = BsAsyncMonad.Callback[/* return */2];
+                              return BsAsyncMonad.Callback[/* >> */3](tmp, (function () {
+                                            var partial_arg = BsAsyncMonad.Callback[/* return */0];
                                             return (function (param) {
                                                 return partial_arg(subscription, param);
                                               });
@@ -63,7 +63,7 @@ function subscribe(subscription, handler) {
 
 function publish(client, name, data) {
   var data$1 = Buffer$LidcoreBsNode.from(/* None */0, data);
-  return BsAsyncMonad.Callback[/* >> */5](get_topic(client, name), (function (topic) {
+  return BsAsyncMonad.Callback[/* >> */3](get_topic(client, name), (function (topic) {
                 var publisher = topic.publisher();
                 return (function (param) {
                     publisher.publish(data$1, param);
@@ -98,21 +98,6 @@ function init$1($staropt$star, _) {
   return new Compute($staropt$star ? $staropt$star[0] : default_config$1);
 }
 
-function get(autoCreate, t) {
-  var options;
-  if (autoCreate) {
-    var options$1 = autoCreate[0];
-    options$1.autoCreate = true;
-    options = options$1;
-  } else {
-    options = null;
-  }
-  return (function (param) {
-      t.get(options, param);
-      return /* () */0;
-    });
-}
-
 function createInstanceGroupManager(options, targetSize, instanceTemplate, t, name) {
   var options$1 = Js_null_undefined.fromOption(options);
   return (function (param) {
@@ -142,7 +127,14 @@ var PubSub = [
 ];
 
 var Compute_001 = [
-  get,
+  (function (prim, prim$1) {
+      prim.exists(prim$1);
+      return /* () */0;
+    }),
+  (function (prim, prim$1) {
+      prim.get(prim$1);
+      return /* () */0;
+    }),
   (function (prim, prim$1) {
       prim.delete(prim$1);
       return /* () */0;
@@ -153,7 +145,12 @@ function Compute_002(prim, prim$1) {
   return prim.instanceTemplate(prim$1);
 }
 
-var Compute_003 = [
+function Compute_003(prim, prim$1, prim$2, prim$3) {
+  prim.createInstanceTemplate(prim$1, prim$2, prim$3);
+  return /* () */0;
+}
+
+var Compute_004 = [
   [
     (function (prim, prim$1) {
         prim.exists(prim$1);
@@ -174,6 +171,10 @@ var Compute_003 = [
   [
     (function (prim, prim$1) {
         prim.exists(prim$1);
+        return /* () */0;
+      }),
+    (function (prim, prim$1) {
+        prim.get(prim$1);
         return /* () */0;
       }),
     (function (prim, prim$1) {
@@ -198,7 +199,7 @@ var Compute_003 = [
     })
 ];
 
-function Compute_004(prim, prim$1) {
+function Compute_005(prim, prim$1) {
   return prim.zone(prim$1);
 }
 
@@ -207,7 +208,8 @@ var Compute$1 = [
   Compute_001,
   Compute_002,
   Compute_003,
-  Compute_004
+  Compute_004,
+  Compute_005
 ];
 
 exports.project = project;
