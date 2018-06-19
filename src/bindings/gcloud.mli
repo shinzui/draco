@@ -63,22 +63,23 @@ module Compute : sig
     module Autoscaler : sig
       type t
 
-      val get    : ?autoCreate:'a Js.t -> t -> unit Callback.t
+      val exists : t -> bool Callback.t
       val delete : t -> unit Callback.t
     end
     val autoscaler : t -> string -> Autoscaler.t
+    val createAutoscaler : t -> string -> 'a Js.t -> Autoscaler.t Callback.t
 
     module InstanceGroupManager : sig
       type t
 
       val exists      : t -> bool Callback.t
-      val create      : ?options:'a Js.t -> targetSize:int ->
-                        instanceTemplate:InstanceTemplate.t ->
-                        t -> unit Callback.t
       val delete      : t -> unit Callback.t
       val recreateVMs : t -> unit Callback.t
     end
     val instanceGroupManager : t -> string -> InstanceGroupManager.t
+    val createInstanceGroupManager : ?options:'a Js.t -> targetSize:int ->
+                                     instanceTemplate:InstanceTemplate.t ->
+                                     t -> string -> InstanceGroupManager.t Callback.t 
 
     module VM : sig
       type t

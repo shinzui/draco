@@ -10,15 +10,12 @@ module Runtime : sig
 end
 
 module Config : sig
-  type 'a instanceTemplate = serviceAccount:string -> projectId:string -> 'a Js.t
-
   type ('a, 'b) config = {
     name:             string;
     projectId:        string;
-    image:            string;
     serviceAccount:   string;
     zone:             string;
-    instanceTemplate: 'a instanceTemplate;
+    instanceTemplate: 'a Js.t;
     autoscale:        'b Js.t
   } [@@bs.deriving abstract]
 

@@ -47,12 +47,22 @@ module Runtime = struct
   
   let msg_check_key id =
     {j|msg_check_$(id)|j}
-  
-  let redis =
-    Redis.createClient
-      (Env.get ~default:"redis://localhost:6379" "REDIS_URL")
+
+  let redis_client = ref None
+
+  let get_redis () =
+    match !redis_client with
+      | Some client -> client
+      | None ->
+          let client =
+            Redis.createClient
+              (Env.get ~default:"redis://localhost:6379" "REDIS_URL")
+          in
+          redis_client := Some client;
+          client
   
   let is_duplicate id =
+    let redis = get_redis () in
     let key = msg_check_key id in
     Redis.setnx redis key "foo" >> fun n ->
       if n = 0 then
@@ -118,15 +128,12 @@ module Runtime = struct
 end
 
 module Config = struct
-  type 'a instanceTemplate = serviceAccount:string -> projectId:string -> 'a Js.t
-
   type ('a, 'b) config = {
     name:             string;
     projectId:        string;
-    image:            string;
     serviceAccount:   string;
     zone:             string;
-    instanceTemplate: 'a instanceTemplate;
+    instanceTemplate: 'a Js.t;
     autoscale:        'b Js.t
   } [@@bs.deriving abstract]
 
@@ -144,8 +151,7 @@ module Config = struct
       projectId config
     in
     let instanceTemplateConfig =
-      Obj.magic
-        (instanceTemplate config ~serviceAccount ~projectId)
+      Obj.magic (instanceTemplate config)
     in
     instanceTemplateConfig##properties##metadata #= [%bs.obj{
       items = [|[%bs.obj{
@@ -153,10 +159,16 @@ module Config = struct
         value = name
       }]|]
     }];
+    instanceTemplateConfig##properties##serviceAccounts #= [|[%bs.obj{
+      email = serviceAccount;
+      scopes = [|"https://www.googleapis.com/auth/cloud-platform"|]
+    }]|];
     let autoscaleConfig =
       Obj.magic (autoscale config)
     in
     autoscaleConfig##target #= name;
+    autoscaleConfig##name #= name;
+    autoscaleConfig##zone #= zone;
     let compute =
       Gcloud.Compute.init ~config:(Gcloud.config ~projectId ()) ()
     in
@@ -180,16 +192,22 @@ module Config = struct
       if exists then
         return ()
       else
-        Gcloud.Compute.Zone.InstanceGroupManager.create ~targetSize:0
-                                                        ~instanceTemplate
-                                                        instanceGroupManager
+        discard(Gcloud.Compute.Zone.createInstanceGroupManager ~targetSize:0
+                                                       ~instanceTemplate
+                                                       zone
+                                                       name)
     in
-    createInstanceTemplate () >> fun () ->
-      createGroup () >> fun () ->
-        Gcloud.Compute.Zone.Autoscaler.get ~autoCreate:autoscaleConfig autoscaler >> fun () ->
-          if restart then
-            Gcloud.Compute.Zone.InstanceGroupManager.recreateVMs instanceGroupManager
-          else
-            return ()
+    let createAutoscaler () =
+      Gcloud.Compute.Zone.Autoscaler.exists autoscaler >> fun exists ->
+        if exists then
+          return ()
+        else
+          discard(Gcloud.Compute.Zone.createAutoscaler zone name autoscaleConfig)
+    in
+    createInstanceTemplate () >> createGroup >> createAutoscaler >> fun () ->
+      if restart then
+        Gcloud.Compute.Zone.InstanceGroupManager.recreateVMs instanceGroupManager
+      else
+        return ()
           
  end

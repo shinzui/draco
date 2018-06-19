@@ -4,7 +4,8 @@
   "sources": [
     "src",
     "src/bindings",
-    "src/lib"
+    "src/lib",
+    "src/bin"
   ],
   "package-specs": {
     "module": "commonjs",

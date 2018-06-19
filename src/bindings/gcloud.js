@@ -109,25 +109,10 @@ function get(autoCreate, t) {
     });
 }
 
-function get$1(autoCreate, t) {
-  var options;
-  if (autoCreate) {
-    var options$1 = autoCreate[0];
-    options$1.autoCreate = true;
-    options = options$1;
-  } else {
-    options = null;
-  }
-  return (function (param) {
-      t.get(options, param);
-      return /* () */0;
-    });
-}
-
-function create(options, targetSize, instanceTemplate, t) {
+function createInstanceGroupManager(options, targetSize, instanceTemplate, t, name) {
   var options$1 = Js_null_undefined.fromOption(options);
   return (function (param) {
-      t.create(instanceTemplate, targetSize, options$1, param);
+      t.createInstanceGroupManager(name, instanceTemplate, targetSize, options$1, param);
       return /* () */0;
     });
 }
@@ -166,7 +151,10 @@ function Compute_002(prim, prim$1) {
 
 var Compute_003 = [
   [
-    get$1,
+    (function (prim, prim$1) {
+        prim.exists(prim$1);
+        return /* () */0;
+      }),
     (function (prim, prim$1) {
         prim.delete(prim$1);
         return /* () */0;
@@ -175,12 +163,15 @@ var Compute_003 = [
   (function (prim, prim$1) {
       return prim.autoscaler(prim$1);
     }),
+  (function (prim, prim$1, prim$2, prim$3) {
+      prim.createAutoscaler(prim$1, prim$2, prim$3);
+      return /* () */0;
+    }),
   [
     (function (prim, prim$1) {
         prim.exists(prim$1);
         return /* () */0;
       }),
-    create,
     (function (prim, prim$1) {
         prim.delete(prim$1);
         return /* () */0;
@@ -193,6 +184,7 @@ var Compute_003 = [
   (function (prim, prim$1) {
       return prim.instanceGroupManager(prim$1);
     }),
+  createInstanceGroupManager,
   [(function (prim, prim$1) {
         prim.getMetadata(prim$1);
         return /* () */0;

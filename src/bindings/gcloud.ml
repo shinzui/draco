@@ -138,39 +138,23 @@ module Compute = struct
       type t
       external exists : t -> bool Callback.callback -> unit = "" [@@bs.send]
       external delete : t -> unit Callback.callback -> unit = "" [@@bs.send]
-
-      external get : t -> 'a Js.t Js.Nullable.t -> unit Callback.callback -> unit = "" [@@bs.send]
-      let get ?autoCreate t =
-        let options =
-          match autoCreate with
-            | None -> Js.Nullable.null
-            | Some options ->
-                let options = Obj.magic options in
-                options##autoCreate #= true;
-                Js.Nullable.return options
-        in
-        get t options
-
-      external create : t -> 'a Js.t -> unit Callback.callback -> unit = "" [@@bs.send]
-      let create ~options t = create t options
     end
     external autoscaler : t -> string -> Autoscaler.t = "" [@@bs.send]
+    external createAutoscaler : t -> string -> 'a Js.t -> Autoscaler.t Callback.callback -> unit = "" [@@bs.send]
 
     module InstanceGroupManager = struct
       type t
       external exists : t -> bool Callback.callback -> unit = "" [@@bs.send]
       external delete : t -> unit Callback.callback -> unit = "" [@@bs.send]
-
-      external create : t -> InstanceTemplate.t -> int -> 'a Js.t Js.Nullable.t -> unit Callback.callback -> unit = "" [@@bs.send]
-      let create ?options ~targetSize ~instanceTemplate t =
-        let options =
-          Js.Nullable.fromOption options
-        in
-        create t instanceTemplate targetSize options
-
       external recreateVMs : t -> unit Callback.callback -> unit = "" [@@bs.send]
     end
     external instanceGroupManager : t -> string -> InstanceGroupManager.t = "" [@@bs.send]
+    external createInstanceGroupManager : t -> string -> InstanceTemplate.t -> int -> 'a Js.t Js.Nullable.t -> InstanceGroupManager.t Callback.callback -> unit = "" [@@bs.send]
+    let createInstanceGroupManager ?options ~targetSize ~instanceTemplate t name =
+      let options =
+        Js.Nullable.fromOption options
+      in
+      createInstanceGroupManager t name instanceTemplate targetSize options
 
     module VM = struct
       type t
