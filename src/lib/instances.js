@@ -172,7 +172,8 @@ function initialize($staropt$star, config) {
   autoscaleConfig.name = name;
   autoscaleConfig.zone = zone;
   var compute = Gcloud$LidcoreDraco.Compute[/* init */0](/* Some */[{
-          projectId: projectId
+          projectId: projectId,
+          baseUrl: "https://www.googleapis.com/compute/beta"
         }], /* () */0);
   var instanceTemplate = Gcloud$LidcoreDraco.Compute[/* instanceTemplate */2](compute, name);
   var zone$1 = Gcloud$LidcoreDraco.Compute[/* zone */4](compute, zone);

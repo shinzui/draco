@@ -47,6 +47,11 @@ end
 module Compute : sig
   type t
 
+  type config = {
+    projectId : string [@bs.optional];
+    baseUrl:    string [@bs.optional]
+  } [@@bs.deriving abstract]
+
   val init : ?config:config -> unit -> t
 
   module InstanceTemplate : sig

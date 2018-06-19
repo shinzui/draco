@@ -90,8 +90,12 @@ function publishBatch(projectId, topic, messages) {
     });
 }
 
+var default_config$1 = {
+  projectId: project
+};
+
 function init$1($staropt$star, _) {
-  return new Compute($staropt$star ? $staropt$star[0] : default_config);
+  return new Compute($staropt$star ? $staropt$star[0] : default_config$1);
 }
 
 function get(autoCreate, t) {

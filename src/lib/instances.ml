@@ -170,7 +170,10 @@ module Config = struct
     autoscaleConfig##name #= name;
     autoscaleConfig##zone #= zone;
     let compute =
-      Gcloud.Compute.init ~config:(Gcloud.config ~projectId ()) ()
+      Gcloud.Compute.init
+        ~config:(Gcloud.Compute.config ~projectId
+                                       ~baseUrl:"https://www.googleapis.com/compute/beta"
+                                       ()) ()
     in
     let instanceTemplate =
       Gcloud.Compute.instanceTemplate compute name
