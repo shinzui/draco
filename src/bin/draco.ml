@@ -58,6 +58,11 @@ let () =
   let operation =
     operationToJs !operation
   in
-  Printf.printf "%s %s.." operation name;
-  finish (fn config >| fun () ->
-    Printf.printf " done!\n")
+  let spinner =
+    Spinner.init {j|$(operation) $(name).. %s|j};
+  in
+  Spinner.start spinner;
+  finish (fn config &> fun () ->
+    Spinner.stop ~clean:true spinner;
+    Printf.printf "%s %s.. done!\n" operation name;
+    return ())

@@ -11,6 +11,7 @@ var Js_mapperRt = require("bs-platform/lib/js/js_mapperRt.js");
 var BsAsyncMonad = require("bs-async-monad/src/bsAsyncMonad.js");
 var Fs$LidcoreBsNode = require("@lidcore/bs-node/src/fs.js");
 var Utils$LidcoreDraco = require("../lib/utils.js");
+var Spinner$LidcoreDraco = require("../bindings/spinner.js");
 var Instances$LidcoreDraco = require("../lib/instances.js");
 
 var jsMapperConstantArray = /* array */[
@@ -115,31 +116,32 @@ var name = config.name;
 
 var operation$1 = Js_mapperRt.binarySearch(3, operation[0], jsMapperConstantArray);
 
-Curry._2(Printf.printf(/* Format */[
-          /* String */Block.__(2, [
-              /* No_padding */0,
-              /* Char_literal */Block.__(12, [
-                  /* " " */32,
-                  /* String */Block.__(2, [
-                      /* No_padding */0,
-                      /* String_literal */Block.__(11, [
-                          "..",
-                          /* End_of_format */0
-                        ])
-                    ])
-                ])
-            ]),
-          "%s %s.."
-        ]), operation$1, name);
+var spinner = Spinner$LidcoreDraco.init("" + (String(operation$1) + (" " + (String(name) + ".. %s"))));
 
-BsAsyncMonad.Callback[/* finish */27](/* None */0, BsAsyncMonad.Callback[/* >| */7](Curry._1(fn, config), (function () {
-            return Printf.printf(/* Format */[
-                        /* String_literal */Block.__(11, [
-                            " done!\n",
-                            /* End_of_format */0
-                          ]),
-                        " done!\n"
-                      ]);
+Spinner$LidcoreDraco.start(spinner);
+
+BsAsyncMonad.Callback[/* finish */27](/* None */0, BsAsyncMonad.Callback[/* &> */9](Curry._1(fn, config), (function () {
+            Spinner$LidcoreDraco.stop(/* Some */[true], spinner);
+            Curry._2(Printf.printf(/* Format */[
+                      /* String */Block.__(2, [
+                          /* No_padding */0,
+                          /* Char_literal */Block.__(12, [
+                              /* " " */32,
+                              /* String */Block.__(2, [
+                                  /* No_padding */0,
+                                  /* String_literal */Block.__(11, [
+                                      ".. done!\n",
+                                      /* End_of_format */0
+                                    ])
+                                ])
+                            ])
+                        ]),
+                      "%s %s.. done!\n"
+                    ]), operation$1, name);
+            var partial_arg = BsAsyncMonad.Callback[/* return */0];
+            return (function (param) {
+                return partial_arg(/* () */0, param);
+              });
           })));
 
 /* argc Not a pure module */
