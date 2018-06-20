@@ -24,7 +24,7 @@
     "@google-cloud/compute": "git+https://github.com/toots/nodejs-compute.git#draco",
     "@google-cloud/firestore": "^0.14.1",
     "@google-cloud/pubsub": "^0.18.0",
-    "@lidcore/bs-express": "^1.0.0",
+    "@lidcore/bs-express": "^1.0.1",
     "@lidcore/bs-node": "^1.0.0",
     "bs-async-monad": "^1.1.1",
     "bs-platform": "^3.1.4",
