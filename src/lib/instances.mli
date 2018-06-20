@@ -19,5 +19,6 @@ module Config : sig
     autoscale:        'b Js.t
   } [@@bs.deriving abstract]
 
-  val initialize : ?restart:bool -> ('a, 'b) config -> unit Callback.t
+  val initialize : restart:bool -> ('a, 'b) config -> unit Callback.t
+  val destroy : ('a, 'b) config -> unit Callback.t
 end

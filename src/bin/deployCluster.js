@@ -4,30 +4,43 @@
 var Arg = require("bs-platform/lib/js/arg.js");
 var $$Array = require("bs-platform/lib/js/array.js");
 var Block = require("bs-platform/lib/js/block.js");
+var Curry = require("bs-platform/lib/js/curry.js");
 var Js_exn = require("bs-platform/lib/js/js_exn.js");
 var BsAsyncMonad = require("bs-async-monad/src/bsAsyncMonad.js");
 var Fs$LidcoreBsNode = require("@lidcore/bs-node/src/fs.js");
 var Utils$LidcoreDraco = require("../lib/utils.js");
 var Instances$LidcoreDraco = require("../lib/instances.js");
 
-var usage = "Usage: deploy-cluster [--restart] /path/to/config.json";
+var usage = "Usage: deploy-cluster [--restart|--delete] /path/to/config.json";
 
-var restart = [false];
+var operation = [/* Create */816044828];
 
 var configPath = [""];
 
 var args_000 = /* tuple */[
   "--restart",
   /* Unit */Block.__(0, [(function () {
-          restart[0] = true;
+          operation[0] = /* Create_and_restart */-896987580;
           return /* () */0;
         })]),
   "Restart existing instances after deploy"
 ];
 
+var args_001 = /* :: */[
+  /* tuple */[
+    "--delete",
+    /* Unit */Block.__(0, [(function () {
+            operation[0] = /* Delete */527250507;
+            return /* () */0;
+          })]),
+    "Delete existing cluster"
+  ],
+  /* [] */0
+];
+
 var args = /* :: */[
   args_000,
-  /* [] */0
+  args_001
 ];
 
 function die($staropt$star, _) {
@@ -43,7 +56,7 @@ if (argc < 3) {
 }
 
 try {
-  Arg.parse_argv(/* None */0, $$Array.sub(process.argv, 2, argc - 2 | 0), args, (function (path) {
+  Arg.parse_argv(/* None */0, $$Array.sub(process.argv, 1, argc - 1 | 0), args, (function (path) {
           configPath[0] = path;
           return /* () */0;
         }), usage);
@@ -65,13 +78,31 @@ if (configPath[0] === "") {
 
 var config = Utils$LidcoreDraco.Json[/* parse_buf */1](Fs$LidcoreBsNode.readFileSync(configPath[0]));
 
-var restart$1 = restart[0];
+var match = operation[0];
+
+var fn;
+
+if (match !== 527250507) {
+  if (match >= 816044828) {
+    var partial_arg = Instances$LidcoreDraco.Config[/* initialize */0];
+    fn = (function (param) {
+        return partial_arg(false, param);
+      });
+  } else {
+    var partial_arg$1 = Instances$LidcoreDraco.Config[/* initialize */0];
+    fn = (function (param) {
+        return partial_arg$1(true, param);
+      });
+  }
+} else {
+  fn = Instances$LidcoreDraco.Config[/* destroy */1];
+}
 
 var name = config.name;
 
 console.log("Deploying " + (String(name) + "..."));
 
-BsAsyncMonad.Callback[/* finish */27](/* None */0, BsAsyncMonad.Callback[/* >| */7](Instances$LidcoreDraco.Config[/* initialize */0](/* Some */[restart$1], config), (function () {
+BsAsyncMonad.Callback[/* finish */27](/* None */0, BsAsyncMonad.Callback[/* >| */7](Curry._1(fn, config), (function () {
             console.log("Done!");
             return /* () */0;
           })));

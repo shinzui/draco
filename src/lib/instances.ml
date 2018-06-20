@@ -137,18 +137,49 @@ module Config = struct
     autoscale:        'b Js.t
   } [@@bs.deriving abstract]
 
-  let initialize ?(restart=true) config =
+  type components = {
+    name: string;
+    compute: Gcloud.Compute.t;
+    zone: Gcloud.Compute.Zone.t;
+    instanceTemplate: Gcloud.Compute.InstanceTemplate.t;
+    instanceGroupManager: Gcloud.Compute.Zone.InstanceGroupManager.t;
+    autoscaler: Gcloud.Compute.Zone.Autoscaler.t
+  }
+
+  let components config =
     let name =
       name config
+    in
+    let projectId =
+      projectId config
+    in
+    let compute =
+      Gcloud.Compute.init
+        ~config:(Gcloud.Compute.config ~projectId
+                                       ~baseUrl:"https://www.googleapis.com/compute/beta"
+                                       ()) ()
     in
     let zone =
       zone config
     in
+    let instanceTemplate =
+      Gcloud.Compute.instanceTemplate compute name
+    in
+    let zone =
+      Gcloud.Compute.zone compute zone
+    in
+    let instanceGroupManager =
+      Gcloud.Compute.Zone.instanceGroupManager zone name
+    in
+    let autoscaler =
+      Gcloud.Compute.Zone.autoscaler zone name
+    in
+    {name; compute; zone; instanceTemplate;
+     instanceGroupManager; autoscaler}
+
+  let initialize ~restart config =
     let serviceAccount =
       serviceAccount config
-    in
-    let projectId =
-      projectId config
     in
     let instanceTemplateConfig =
       Obj.magic (instanceTemplate config)
@@ -169,23 +200,9 @@ module Config = struct
     autoscaleConfig##target #= name;
     autoscaleConfig##name #= name;
     autoscaleConfig##zone #= zone;
-    let compute =
-      Gcloud.Compute.init
-        ~config:(Gcloud.Compute.config ~projectId
-                                       ~baseUrl:"https://www.googleapis.com/compute/beta"
-                                       ()) ()
-    in
-    let instanceTemplate =
-      Gcloud.Compute.instanceTemplate compute name
-    in
-    let zone =
-      Gcloud.Compute.zone compute zone
-    in
-    let instanceGroupManager =
-      Gcloud.Compute.Zone.instanceGroupManager zone name
-    in
-    let autoscaler =
-      Gcloud.Compute.Zone.autoscaler zone name
+    let {name; compute; zone; instanceTemplate;
+         instanceGroupManager; autoscaler} =
+      components config
     in
     let createInstanceTemplate () = 
       async_unless
@@ -215,4 +232,30 @@ module Config = struct
         (return restart)
         (fun () ->
           Gcloud.Compute.Zone.InstanceGroupManager.recreateVMs instanceGroupManager)
+
+  let destroy config =
+    let {instanceTemplate;
+         instanceGroupManager;
+         autoscaler} =
+      components config
+    in
+    let deleteAutoscaler =
+      async_if
+        (Gcloud.Compute.Zone.Autoscaler.exists autoscaler)
+        (fun () ->
+          discard(Gcloud.Compute.Zone.Autoscaler.delete autoscaler))
+    in
+    let deleteGroup () =
+      async_if
+        (Gcloud.Compute.Zone.InstanceGroupManager.exists instanceGroupManager)
+        (fun () ->
+          discard(Gcloud.Compute.Zone.InstanceGroupManager.delete instanceGroupManager))
+    in
+    let deleteInstanceTemplate () =
+      async_if
+        (Gcloud.Compute.InstanceTemplate.exists instanceTemplate)
+        (fun () ->
+          discard(Gcloud.Compute.InstanceTemplate.delete instanceTemplate))
+    in
+    deleteAutoscaler >> deleteGroup >> deleteInstanceTemplate
  end
