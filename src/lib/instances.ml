@@ -246,19 +246,28 @@ module Config = struct
       async_if
         (Gcloud.Compute.Zone.Autoscaler.exists autoscaler)
         (fun () ->
-          discard(Gcloud.Compute.Zone.Autoscaler.delete autoscaler))
+          Gcloud.Compute.Zone.Autoscaler.delete autoscaler >> fun () ->
+            repeat
+              (fun () ->
+                Gcloud.Compute.Zone.Autoscaler.exists autoscaler) return)
     in
     let deleteGroup () =
       async_if
         (Gcloud.Compute.Zone.InstanceGroupManager.exists instanceGroupManager)
         (fun () ->
-          discard(Gcloud.Compute.Zone.InstanceGroupManager.delete instanceGroupManager))
+          Gcloud.Compute.Zone.InstanceGroupManager.delete instanceGroupManager >> fun () ->
+            repeat
+              (fun () ->
+                Gcloud.Compute.Zone.InstanceGroupManager.exists instanceGroupManager) return)
     in
     let deleteInstanceTemplate () =
       async_if
         (Gcloud.Compute.InstanceTemplate.exists instanceTemplate)
         (fun () ->
-          discard(Gcloud.Compute.InstanceTemplate.delete instanceTemplate))
+          Gcloud.Compute.InstanceTemplate.delete instanceTemplate >> fun () ->
+            repeat
+              (fun () ->
+                Gcloud.Compute.InstanceTemplate.exists instanceTemplate) return)
     in
     deleteAutoscaler >> deleteGroup >> deleteInstanceTemplate
  end

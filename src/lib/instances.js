@@ -249,11 +249,15 @@ function destroy(config) {
   var partial_arg$1 = BsAsyncMonad.Callback[/* async_if */13];
   var deleteAutoscaler = function (param) {
     return partial_arg$1(partial_arg, (function () {
-                  var partial_arg = Curry._1(Gcloud$LidcoreDraco.Compute[/* Zone */4][/* Autoscaler */0][/* delete */1], autoscaler);
-                  var partial_arg$1 = BsAsyncMonad.Callback[/* discard */10];
-                  return (function (param) {
-                      return partial_arg$1(partial_arg, param);
-                    });
+                  return BsAsyncMonad.Callback[/* >> */3](Curry._1(Gcloud$LidcoreDraco.Compute[/* Zone */4][/* Autoscaler */0][/* delete */1], autoscaler), (function () {
+                                var partial_arg = BsAsyncMonad.Callback[/* return */0];
+                                var partial_arg$1 = BsAsyncMonad.Callback[/* repeat */11];
+                                return (function (param) {
+                                    return partial_arg$1((function () {
+                                                  return Curry._1(Gcloud$LidcoreDraco.Compute[/* Zone */4][/* Autoscaler */0][/* exists */0], autoscaler);
+                                                }), partial_arg, param);
+                                  });
+                              }));
                 }), param);
   };
   var deleteGroup = function () {
@@ -261,11 +265,15 @@ function destroy(config) {
     var partial_arg$1 = BsAsyncMonad.Callback[/* async_if */13];
     return (function (param) {
         return partial_arg$1(partial_arg, (function () {
-                      var partial_arg = Curry._1(Gcloud$LidcoreDraco.Compute[/* Zone */4][/* InstanceGroupManager */3][/* delete */2], instanceGroupManager);
-                      var partial_arg$1 = BsAsyncMonad.Callback[/* discard */10];
-                      return (function (param) {
-                          return partial_arg$1(partial_arg, param);
-                        });
+                      return BsAsyncMonad.Callback[/* >> */3](Curry._1(Gcloud$LidcoreDraco.Compute[/* Zone */4][/* InstanceGroupManager */3][/* delete */2], instanceGroupManager), (function () {
+                                    var partial_arg = BsAsyncMonad.Callback[/* return */0];
+                                    var partial_arg$1 = BsAsyncMonad.Callback[/* repeat */11];
+                                    return (function (param) {
+                                        return partial_arg$1((function () {
+                                                      return Curry._1(Gcloud$LidcoreDraco.Compute[/* Zone */4][/* InstanceGroupManager */3][/* exists */0], instanceGroupManager);
+                                                    }), partial_arg, param);
+                                      });
+                                  }));
                     }), param);
       });
   };
@@ -274,11 +282,15 @@ function destroy(config) {
     var partial_arg$1 = BsAsyncMonad.Callback[/* async_if */13];
     return (function (param) {
         return partial_arg$1(partial_arg, (function () {
-                      var partial_arg = Curry._1(Gcloud$LidcoreDraco.Compute[/* InstanceTemplate */1][/* delete */2], instanceTemplate);
-                      var partial_arg$1 = BsAsyncMonad.Callback[/* discard */10];
-                      return (function (param) {
-                          return partial_arg$1(partial_arg, param);
-                        });
+                      return BsAsyncMonad.Callback[/* >> */3](Curry._1(Gcloud$LidcoreDraco.Compute[/* InstanceTemplate */1][/* delete */2], instanceTemplate), (function () {
+                                    var partial_arg = BsAsyncMonad.Callback[/* return */0];
+                                    var partial_arg$1 = BsAsyncMonad.Callback[/* repeat */11];
+                                    return (function (param) {
+                                        return partial_arg$1((function () {
+                                                      return Curry._1(Gcloud$LidcoreDraco.Compute[/* InstanceTemplate */1][/* exists */0], instanceTemplate);
+                                                    }), partial_arg, param);
+                                      });
+                                  }));
                     }), param);
       });
   };
