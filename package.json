@@ -8,7 +8,7 @@
     "watch": "bsb -make-world -w",
     "clean": "bsb -clean-world"
   },
-  "bin": { "deploy-cluster": "./deploy-cluster" },
+  "bin": "./draco",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/lidcore/draco.git"

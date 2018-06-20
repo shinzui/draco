@@ -177,7 +177,8 @@ module Config = struct
     {name; compute; zone; instanceTemplate;
      instanceGroupManager; autoscaler}
 
-  let initialize ~restart config =
+  let initialize config =
+    let ({name} as components) = components config in
     let serviceAccount =
       serviceAccount config
     in
@@ -200,9 +201,9 @@ module Config = struct
     autoscaleConfig##target #= name;
     autoscaleConfig##name #= name;
     autoscaleConfig##zone #= zone;
-    let {name; compute; zone; instanceTemplate;
+    let {compute; zone; instanceTemplate;
          instanceGroupManager; autoscaler} =
-      components config
+      components
     in
     let createInstanceTemplate () = 
       async_unless
@@ -227,11 +228,13 @@ module Config = struct
         (fun () ->
           discard(Gcloud.Compute.Zone.createAutoscaler zone name autoscaleConfig))
     in
-    createInstanceTemplate () >> createGroup >> createAutoscaler >> fun () ->
-      async_if
-        (return restart)
-        (fun () ->
-          Gcloud.Compute.Zone.InstanceGroupManager.recreateVMs instanceGroupManager)
+    createInstanceTemplate () >> createGroup >> createAutoscaler
+    
+  let restart config =
+    let {instanceGroupManager} =
+      components config
+    in
+    Gcloud.Compute.Zone.InstanceGroupManager.recreateVMs instanceGroupManager
 
   let destroy config =
     let {instanceTemplate;

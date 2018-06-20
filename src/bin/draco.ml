@@ -2,14 +2,14 @@ open BsAsyncMonad.Callback
 open LidcoreBsNode
 
 type operation = [
-  | `Create
-  | `Create_and_restart
-  | `Delete
-]
+  | `Create [@bs.as "Creating"]
+  | `Restart [@bs.as "Restarting"]
+  | `Destroy [@bs.as "Destroying"]
+] [@@bs.deriving jsConverter]
 
 external argv : string array = "" [@@bs.val] [@@bs.scope "process"]
 
-let usage = "Usage: deploy-cluster [--restart|--delete] /path/to/config.json"
+let usage = "Usage: draco [-create|-restart|-destroy] /path/to/config.json"
 
 external exit : int -> 'a = "" [@@bs.val] [@@bs.scope "process"]
 
@@ -18,8 +18,9 @@ let operation = ref `Create
 let configPath = ref ""
 
 let args = [
-  "--restart", Arg.Unit (fun () -> operation := `Create_and_restart), "Restart existing instances after deploy";
-  "--delete", Arg.Unit (fun () -> operation := `Delete), "Delete existing cluster"
+  "-create", Arg.Unit (fun () -> operation := `Create), "Create instances (default)";
+  "-restart", Arg.Unit (fun () -> operation := `Restart), "Restart existing instances";
+  "-destroy", Arg.Unit (fun () -> operation := `Destroy), "Destroy existing cluster"
 ]
 
 let die ?(msg=usage) () =
@@ -45,15 +46,18 @@ let () =
   let fn =
     match !operation with
       | `Create ->
-          Instances.Config.initialize ~restart:false
-      | `Create_and_restart ->
-          Instances.Config.initialize ~restart:true
-      | `Delete ->
+          Instances.Config.initialize
+      | `Restart ->
+          Instances.Config.restart
+      | `Destroy ->
           Instances.Config.destroy
   in
   let name =
     config |. Instances.Config.name
   in
-  Js.log {j|Deploying $(name)...|j};
+  let operation =
+    operationToJs !operation
+  in
+  Printf.printf "%s %s.." operation name;
   finish (fn config >| fun () ->
-    Js.log "Done!")
+    Printf.printf " done!\n")

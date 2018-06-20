@@ -6,36 +6,63 @@ var $$Array = require("bs-platform/lib/js/array.js");
 var Block = require("bs-platform/lib/js/block.js");
 var Curry = require("bs-platform/lib/js/curry.js");
 var Js_exn = require("bs-platform/lib/js/js_exn.js");
+var Printf = require("bs-platform/lib/js/printf.js");
+var Js_mapperRt = require("bs-platform/lib/js/js_mapperRt.js");
 var BsAsyncMonad = require("bs-async-monad/src/bsAsyncMonad.js");
 var Fs$LidcoreBsNode = require("@lidcore/bs-node/src/fs.js");
 var Utils$LidcoreDraco = require("../lib/utils.js");
 var Instances$LidcoreDraco = require("../lib/instances.js");
 
-var usage = "Usage: deploy-cluster [--restart|--delete] /path/to/config.json";
+var jsMapperConstantArray = /* array */[
+  /* tuple */[
+    -237546278,
+    "Destroying"
+  ],
+  /* tuple */[
+    816044828,
+    "Creating"
+  ],
+  /* tuple */[
+    938930095,
+    "Restarting"
+  ]
+];
+
+var usage = "Usage: draco [-create|-restart|-destroy] /path/to/config.json";
 
 var operation = [/* Create */816044828];
 
 var configPath = [""];
 
 var args_000 = /* tuple */[
-  "--restart",
+  "-create",
   /* Unit */Block.__(0, [(function () {
-          operation[0] = /* Create_and_restart */-896987580;
+          operation[0] = /* Create */816044828;
           return /* () */0;
         })]),
-  "Restart existing instances after deploy"
+  "Create instances (default)"
 ];
 
 var args_001 = /* :: */[
   /* tuple */[
-    "--delete",
+    "-restart",
     /* Unit */Block.__(0, [(function () {
-            operation[0] = /* Delete */527250507;
+            operation[0] = /* Restart */938930095;
             return /* () */0;
           })]),
-    "Delete existing cluster"
+    "Restart existing instances"
   ],
-  /* [] */0
+  /* :: */[
+    /* tuple */[
+      "-destroy",
+      /* Unit */Block.__(0, [(function () {
+              operation[0] = /* Destroy */-237546278;
+              return /* () */0;
+            })]),
+      "Destroy existing cluster"
+    ],
+    /* [] */0
+  ]
 ];
 
 var args = /* :: */[
@@ -80,31 +107,39 @@ var config = Utils$LidcoreDraco.Json[/* parse_buf */1](Fs$LidcoreBsNode.readFile
 
 var match = operation[0];
 
-var fn;
-
-if (match !== 527250507) {
-  if (match >= 816044828) {
-    var partial_arg = Instances$LidcoreDraco.Config[/* initialize */0];
-    fn = (function (param) {
-        return partial_arg(false, param);
-      });
-  } else {
-    var partial_arg$1 = Instances$LidcoreDraco.Config[/* initialize */0];
-    fn = (function (param) {
-        return partial_arg$1(true, param);
-      });
-  }
-} else {
-  fn = Instances$LidcoreDraco.Config[/* destroy */1];
-}
+var fn = match !== 816044828 ? (
+    match >= 938930095 ? Instances$LidcoreDraco.Config[/* restart */1] : Instances$LidcoreDraco.Config[/* destroy */2]
+  ) : Instances$LidcoreDraco.Config[/* initialize */0];
 
 var name = config.name;
 
-console.log("Deploying " + (String(name) + "..."));
+var operation$1 = Js_mapperRt.binarySearch(3, operation[0], jsMapperConstantArray);
+
+Curry._2(Printf.printf(/* Format */[
+          /* String */Block.__(2, [
+              /* No_padding */0,
+              /* Char_literal */Block.__(12, [
+                  /* " " */32,
+                  /* String */Block.__(2, [
+                      /* No_padding */0,
+                      /* String_literal */Block.__(11, [
+                          "..",
+                          /* End_of_format */0
+                        ])
+                    ])
+                ])
+            ]),
+          "%s %s.."
+        ]), operation$1, name);
 
 BsAsyncMonad.Callback[/* finish */27](/* None */0, BsAsyncMonad.Callback[/* >| */7](Curry._1(fn, config), (function () {
-            console.log("Done!");
-            return /* () */0;
+            return Printf.printf(/* Format */[
+                        /* String_literal */Block.__(11, [
+                            " done!\n",
+                            /* End_of_format */0
+                          ]),
+                        " done!\n"
+                      ]);
           })));
 
 /* argc Not a pure module */
