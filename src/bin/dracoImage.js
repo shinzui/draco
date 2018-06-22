@@ -14,24 +14,60 @@ var Child_process$LidcoreBsNode = require("@lidcore/bs-node/src/child_process.js
 
 DracoCommon$LidcoreDraco.usage("image build [base|app|both]");
 
+function provisioner(projectId, zone, mode) {
+  var script = Fs$LidcoreBsNode.realpathSync("" + (String(__dirname) + ("/../../packer/" + (String(mode) + ".sh"))));
+  return {
+          type: "shell",
+          script: script,
+          environment_vars: /* array */[
+            "PROJECT=" + (String(projectId) + ""),
+            "ZONE=" + (String(zone) + "")
+          ]
+        };
+}
+
+function builder(projectId, zone, _) {
+  return {
+          type: "googlecompute",
+          project_id: projectId,
+          source_image_family: "ubuntu-1604-lts",
+          zone: zone,
+          ssh_username: "ubuntu",
+          image_name: "draco-base",
+          image_family: "draco",
+          instance_name: "draco-build-base",
+          machine_type: "n1-standard-1",
+          disk_size: "50",
+          disk_type: "pd-ssd"
+        };
+}
+
 function getConfig(tmp, config, mode) {
-  var path = "" + (String(DracoCommon$LidcoreDraco.baseDir) + ("/packer/" + (String(mode) + ".json")));
-  var packerConfig = Utils$LidcoreDraco.Json[/* parse_buf */1](Fs$LidcoreBsNode.readFileSync(path));
+  var projectId = config.projectId;
+  var zone = config.zone;
+  var provisioner$1 = provisioner(projectId, zone, mode);
   var match = config.image;
-  if (!(match == null)) {
+  var provisioners;
+  if (match == null) {
+    provisioners = /* array */[];
+  } else {
     var match$1 = match[mode];
     if (match$1 !== undefined) {
       var match$2 = match$1.provisioners;
-      if (!(match$2 == null)) {
-        packerConfig.provisioners = packerConfig.provisioners.concat(match$2);
-      }
-      
+      provisioners = (match$2 == null) ? /* array */[] : match$2;
+    } else {
+      provisioners = /* array */[];
     }
-    
   }
-  var path$1 = Tmp$LidcoreDraco.make(/* None */0, /* None */0, /* Some */[".json"], tmp);
-  Fs$LidcoreBsNode.writeFileSync(path$1, Utils$LidcoreDraco.Json[/* stringify */2](packerConfig));
-  return path$1;
+  provisioners.unshift(provisioner$1);
+  var builder$1 = builder(projectId, zone, mode);
+  var packerConfig = {
+    provisioners: provisioners,
+    builders: /* array */[builder$1]
+  };
+  var path = Tmp$LidcoreDraco.make(/* None */0, /* None */0, /* Some */[".json"], tmp);
+  Fs$LidcoreBsNode.writeFileSync(path, Utils$LidcoreDraco.Json[/* stringify */2](packerConfig));
+  return path;
 }
 
 function packer(args, config, mode) {
@@ -119,7 +155,7 @@ if (mode !== 736760881) {
         Caml_builtin_exceptions.assert_failure,
         [
           "dracoImage.ml",
-          76,
+          131,
           11
         ]
       ];

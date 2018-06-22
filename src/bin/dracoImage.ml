@@ -10,25 +10,80 @@ type build = [
 let () =
   usage "image build [base|app|both]"
 
+external __dirname : string = "" [@@bs.val]
+
+type provisioner = {
+  ptype:  string [@bs.as "type"];
+  script: string;
+  environment_vars: string array
+} [@@bs.deriving abstract]
+
+let provisioner ~projectId ~zone mode =
+  let script =
+    Fs.realpathSync {j|$(__dirname)/../../packer/$(mode).sh|j}
+  in
+  provisioner
+    ~ptype:"shell" ~script
+    ~environment_vars:[|
+      {j|PROJECT=$(projectId)|j};
+      {j|ZONE=$(zone)|j}
+    |]
+
+type builder = {
+  btype: string [@bs.as "type"];
+  project_id: string;
+  source_image_family: string;
+  zone: string;
+  ssh_username: string;
+  image_name: string;
+  image_family: string;
+  instance_name: string;
+  machine_type: string;
+  disk_size: string;
+  disk_type: string
+} [@@bs.deriving abstract]
+
+let builder ~projectId ~zone mode =
+  builder ~btype:"googlecompute"
+    ~project_id:projectId
+    ~source_image_family:"ubuntu-1604-lts"
+    ~zone ~ssh_username:"ubuntu"
+    ~image_name:"draco-base"
+    ~image_family:"draco"
+    ~instance_name:"draco-build-base"
+    ~machine_type:"n1-standard-1"
+    ~disk_size:"50"
+    ~disk_type:"pd-ssd"
+
+type packerConfig = {
+  provisioners: provisioner array;
+  builders: builder array
+} [@@bs.deriving abstract]
+
 let getConfig ~tmp ~config mode =
-  let path =
-    {j|$(baseDir)/packer/$(mode).json|j}
+  let projectId = config##projectId in
+  let zone = config##zone in
+  let provisioner =
+    provisioner ~projectId ~zone mode
+  in
+  let provisioners =
+    match Js.Nullable.toOption config##image with
+      | Some config ->
+          (match Js.Dict.get config mode with
+            | Some config ->
+                (match Js.Nullable.toOption config##provisioners with
+                   | Some provisioners -> provisioners
+                   | None -> [||])
+            | None -> [||])
+      | None -> [||]
+  in
+  ignore(Js.Array.unshift provisioner provisioners);
+  let builder =
+    builder ~projectId ~zone mode
   in
   let packerConfig =
-    Utils.Json.parse_buf
-      (Fs.readFileSync path)
+    packerConfig ~provisioners ~builders:[|builder|]
   in
-  (match Js.Nullable.toOption config##image with
-    | Some config ->
-        (match Js.Dict.get config mode with
-          | Some config ->
-              (match Js.Nullable.toOption config##provisioners with
-                | Some provisioners ->
-                    packerConfig##provisioners #= 
-                      (Js.Array.concat provisioners packerConfig##provisioners)
-                | None -> ())
-          | None -> ())
-    | None -> ());
   let path =
     Tmp.make ~postfix:".json" tmp
   in
