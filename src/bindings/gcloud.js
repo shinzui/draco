@@ -9,7 +9,7 @@ var Pubsub = require("@google-cloud/pubsub");
 var Buffer$LidcoreBsNode = require("@lidcore/bs-node/src/buffer.js");
 var Compute = require("@google-cloud/compute");
 
-var project = Env$LidcoreDraco.get(/* Some */["komodo-dev"], "PROJECT");
+var project = Env$LidcoreDraco.get(/* Some */["draco-dev"], "PROJECT");
 
 var default_config = {
   projectId: project

@@ -3,7 +3,7 @@ open BsAsyncMonad
 open BsAsyncMonad.Callback
 
 let project =
-  Env.get ~default:"komodo-dev" "PROJECT"
+  Env.get ~default:"draco-dev" "PROJECT"
 
 type config = {
   projectId : string [@bs.optional]

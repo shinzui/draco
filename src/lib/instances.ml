@@ -36,8 +36,8 @@ module Runtime = struct
   
   let stopping = ref false
   let () =
-    Process.on `SIGTERM (fun () ->
-      stopping := true)
+    Process.on (`SIGTERM (fun () ->
+      stopping := true))
   
   (* de-duplicate messages goddamn it *)
   
@@ -128,17 +128,7 @@ module Runtime = struct
 end
 
 module Config = struct
-  type ('a, 'b) config = {
-    name:             string;
-    projectId:        string;
-    serviceAccount:   string;
-    zone:             string;
-    instanceTemplate: 'a Js.t;
-    autoscale:        'b Js.t
-  } [@@bs.deriving abstract]
-
   type components = {
-    name: string;
     compute: Gcloud.Compute.t;
     zone: Gcloud.Compute.Zone.t;
     instanceTemplate: Gcloud.Compute.InstanceTemplate.t;
@@ -146,13 +136,7 @@ module Config = struct
     autoscaler: Gcloud.Compute.Zone.Autoscaler.t
   }
 
-  let components config =
-    let name =
-      name config
-    in
-    let projectId =
-      projectId config
-    in
+  let components ~projectId ~zone name =
     let compute =
       Gcloud.Compute.init
         ~config:(Gcloud.config ~projectId ()) ()
@@ -162,9 +146,6 @@ module Config = struct
         reqOps##uri #= (Js.String.replace "/v1/" "/beta/" reqOps##uri);
         reqOps
     }];
-    let zone =
-      zone config
-    in
     let instanceTemplate =
       Gcloud.Compute.instanceTemplate compute name
     in
@@ -177,16 +158,13 @@ module Config = struct
     let autoscaler =
       Gcloud.Compute.Zone.autoscaler zone name
     in
-    {name; compute; zone; instanceTemplate;
+    {compute; zone; instanceTemplate;
      instanceGroupManager; autoscaler}
 
-  let initialize config =
-    let ({name} as components) = components config in
-    let serviceAccount =
-      serviceAccount config
-    in
+  let initialize ~projectId ~serviceAccount ~zone
+                 ~instanceTemplate ~autoscaler name =
     let instanceTemplateConfig =
-      Obj.magic (instanceTemplate config)
+      Obj.magic instanceTemplate
     in
     instanceTemplateConfig##properties##metadata #= [%bs.obj{
       items = [|[%bs.obj{
@@ -198,15 +176,15 @@ module Config = struct
       email = serviceAccount;
       scopes = [|"https://www.googleapis.com/auth/cloud-platform"|]
     }]|];
-    let autoscaleConfig =
-      Obj.magic (autoscale config)
+    let autoscalerConfig =
+      Obj.magic autoscaler
     in
-    autoscaleConfig##target #= name;
-    autoscaleConfig##name #= name;
-    autoscaleConfig##zone #= zone;
+    autoscalerConfig##target #= name;
+    autoscalerConfig##name #= name;
+    autoscalerConfig##zone #= zone;
     let {compute; zone; instanceTemplate;
          instanceGroupManager; autoscaler} =
-      components
+      components ~projectId ~zone name 
     in
     let createInstanceTemplate () = 
       async_unless
@@ -229,21 +207,21 @@ module Config = struct
       async_unless
         (Gcloud.Compute.Zone.Autoscaler.exists autoscaler)
         (fun () ->
-          discard(Gcloud.Compute.Zone.createAutoscaler zone name autoscaleConfig))
+          discard(Gcloud.Compute.Zone.createAutoscaler zone name autoscalerConfig))
     in
     createInstanceTemplate () >> createGroup >> createAutoscaler
     
-  let restart config =
+  let restart ~projectId ~zone name =
     let {instanceGroupManager} =
-      components config
+      components ~projectId ~zone name
     in
     Gcloud.Compute.Zone.InstanceGroupManager.recreateVMs instanceGroupManager
 
-  let destroy config =
+  let destroy ~projectId ~zone name =
     let {instanceTemplate;
          instanceGroupManager;
          autoscaler} =
-      components config
+      components ~projectId ~zone name
     in
     let deleteAutoscaler =
       async_if

@@ -26,9 +26,7 @@ let error s =
         fn s
     | None -> ()
 
-external on : string -> (exn -> unit) -> unit = "" [@@bs.val] [@@bs.scope "process"]
-
 let () =
-  on "uncaughtException" (fun exn ->
+  LidcoreBsNode.Process.on (`UncaughtException (fun exn ->
     error (Obj.magic exn);
-    raise exn)
+    raise exn))

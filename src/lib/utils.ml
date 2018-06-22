@@ -16,6 +16,9 @@ let partition size a =
   done;
   ret
 
+let escape s =
+  Printf.sprintf "%S" s
+
 module Json = struct
   let parse : string -> 'a Js.t = [%bs.raw{|function (x) {
     return JSON.parse(x);

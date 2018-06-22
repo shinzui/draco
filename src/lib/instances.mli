@@ -10,16 +10,10 @@ module Runtime : sig
 end
 
 module Config : sig
-  type ('a, 'b) config = {
-    name:             string;
-    projectId:        string;
-    serviceAccount:   string;
-    zone:             string;
-    instanceTemplate: 'a Js.t;
-    autoscale:        'b Js.t
-  } [@@bs.deriving abstract]
-
-  val initialize : ('a, 'b) config -> unit Callback.t
-  val restart : ('a, 'b) config -> unit Callback.t
-  val destroy : ('a, 'b) config -> unit Callback.t
+  val initialize : projectId:string -> serviceAccount:string ->
+                   zone:string ->
+                   instanceTemplate:'a Js.t ->
+                   autoscaler:'b Js.t -> string -> unit Callback.t
+  val restart : projectId:string -> zone:string -> string -> unit Callback.t
+  val destroy : projectId:string -> zone:string -> string -> unit Callback.t
 end

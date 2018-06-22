@@ -2,6 +2,7 @@
 'use strict';
 
 var Curry = require("bs-platform/lib/js/curry.js");
+var Process$LidcoreBsNode = require("@lidcore/bs-node/src/process.js");
 
 var handlers = { };
 
@@ -37,10 +38,13 @@ function error(s) {
   }
 }
 
-process.on("uncaughtException", (function (exn) {
-        error(exn);
-        throw exn;
-      }));
+Process$LidcoreBsNode.on(/* `UncaughtException */[
+      791088858,
+      (function (exn) {
+          error(exn);
+          throw exn;
+        })
+    ]);
 
 exports.on_info = on_info;
 exports.info = info;
