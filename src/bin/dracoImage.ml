@@ -10,12 +10,35 @@ type build = [
 let () =
   usage "image build [base|app|both]"
 
-let packer ~args config =
-  let baseDir =
-    DracoCommon.baseDir
+let getConfig ~tmp ~config mode =
+  let path =
+    {j|$(baseDir)/packer/$(mode).json|j}
   in
+  let packerConfig =
+    Utils.Json.parse_buf
+      (Fs.readFileSync path)
+  in
+  (match Js.Nullable.toOption config##image with
+    | Some config ->
+        (match Js.Dict.get config mode with
+          | Some config ->
+              (match Js.Nullable.toOption config##provisioners with
+                | Some provisioners ->
+                    packerConfig##provisioners #= 
+                      (Js.Array.concat provisioners packerConfig##provisioners)
+                | None -> ())
+          | None -> ())
+    | None -> ());
+  let path =
+    Tmp.make ~postfix:".json" tmp
+  in
+  Fs.writeFileSync path (Utils.Json.stringify packerConfig);
+  path
+
+let packer ~args ~config mode =
+  let tmp = Tmp.init () in
   let config =
-    Utils.escape {j|$(baseDir)/packer/$(config)|j}
+    Utils.escape (getConfig ~config ~tmp mode)
   in
   let args = List.map (fun (lbl,value) ->
     let opt = Utils.escape {j|$(lbl)=$(value)|j} in
@@ -27,7 +50,11 @@ let packer ~args config =
     stdout = `Inherit Process.stdout;
     stderr = `Inherit Process.stderr
   } in
-  ignore(Child_process.spawn ~shell:true ~stdio {j|packer build -force $(args) $(config)|j}) 
+  let child =
+    Child_process.spawn ~shell:true ~stdio {j|packer build -force $(args) $(config)|j}
+  in
+  Child_process.on child (`Exit (fun _ ->
+    Tmp.cleanup tmp))
 
 let () =
   if argc <> 4 then die ();
@@ -45,6 +72,6 @@ let () =
     "zone", config##zone
   ] in
   match mode with
-    | `Base -> packer ~args "base.json"
+    | `Base -> packer ~args ~config "base"
     | _ -> assert false
 

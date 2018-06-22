@@ -4,6 +4,8 @@
 var List = require("bs-platform/lib/js/list.js");
 var $$String = require("bs-platform/lib/js/string.js");
 var Caml_array = require("bs-platform/lib/js/caml_array.js");
+var Fs$LidcoreBsNode = require("@lidcore/bs-node/src/fs.js");
+var Tmp$LidcoreDraco = require("../bindings/tmp.js");
 var Utils$LidcoreDraco = require("../lib/utils.js");
 var Process$LidcoreBsNode = require("@lidcore/bs-node/src/process.js");
 var Caml_builtin_exceptions = require("bs-platform/lib/js/caml_builtin_exceptions.js");
@@ -12,8 +14,29 @@ var Child_process$LidcoreBsNode = require("@lidcore/bs-node/src/child_process.js
 
 DracoCommon$LidcoreDraco.usage("image build [base|app|both]");
 
-function packer(args, config) {
-  var config$1 = Utils$LidcoreDraco.$$escape("" + (String(DracoCommon$LidcoreDraco.baseDir) + ("/packer/" + (String(config) + ""))));
+function getConfig(tmp, config, mode) {
+  var path = "" + (String(DracoCommon$LidcoreDraco.baseDir) + ("/packer/" + (String(mode) + ".json")));
+  var packerConfig = Utils$LidcoreDraco.Json[/* parse_buf */1](Fs$LidcoreBsNode.readFileSync(path));
+  var match = config.image;
+  if (!(match == null)) {
+    var match$1 = match[mode];
+    if (match$1 !== undefined) {
+      var match$2 = match$1.provisioners;
+      if (!(match$2 == null)) {
+        packerConfig.provisioners = packerConfig.provisioners.concat(match$2);
+      }
+      
+    }
+    
+  }
+  var path$1 = Tmp$LidcoreDraco.make(/* None */0, /* None */0, /* Some */[".json"], tmp);
+  Fs$LidcoreBsNode.writeFileSync(path$1, Utils$LidcoreDraco.Json[/* stringify */2](packerConfig));
+  return path$1;
+}
+
+function packer(args, config, mode) {
+  var tmp = Tmp$LidcoreDraco.init(/* None */0, /* () */0);
+  var config$1 = Utils$LidcoreDraco.$$escape(getConfig(tmp, config, mode));
   var args$1 = List.map((function (param) {
           var opt = Utils$LidcoreDraco.$$escape("" + (String(param[0]) + ("=" + (String(param[1]) + ""))));
           return "-var " + (String(opt) + "");
@@ -36,8 +59,13 @@ function packer(args, config) {
     stdio_001,
     stdio_002
   ];
-  Child_process$LidcoreBsNode.spawn(/* None */0, /* None */0, /* Some */[stdio], /* Some */[true], "packer build -force " + (String(args$2) + (" " + (String(config$1) + ""))));
-  return /* () */0;
+  var child = Child_process$LidcoreBsNode.spawn(/* None */0, /* None */0, /* Some */[stdio], /* Some */[true], "packer build -force " + (String(args$2) + (" " + (String(config$1) + ""))));
+  return Child_process$LidcoreBsNode.on(child, /* `Exit */[
+              771171134,
+              (function () {
+                  return Tmp$LidcoreDraco.cleanup(tmp);
+                })
+            ]);
 }
 
 if (DracoCommon$LidcoreDraco.argc !== 4) {
@@ -91,12 +119,12 @@ if (mode !== 736760881) {
         Caml_builtin_exceptions.assert_failure,
         [
           "dracoImage.ml",
-          49,
+          76,
           11
         ]
       ];
 } else {
-  packer(args, "base.json");
+  packer(args, config, "base");
 }
 
 /*  Not a pure module */

@@ -20,7 +20,9 @@ let usage opts =
   usageMsg := {j|Usage: draco [mode] $(opts) [-stage <stage>]|j}
 
 let baseDir =
-  let cwd = Process.argv.(1) in
+  let cwd =
+    Fs.realpathSync Process.argv.(1)
+  in
   Path.normalize {j|$(cwd)/../../..|j}
 
 let configPath =

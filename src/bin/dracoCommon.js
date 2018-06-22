@@ -53,7 +53,7 @@ function usage(opts) {
   return /* () */0;
 }
 
-var cwd = Caml_array.caml_array_get(Process$LidcoreBsNode.argv, 1);
+var cwd = Fs$LidcoreBsNode.realpathSync(Caml_array.caml_array_get(Process$LidcoreBsNode.argv, 1));
 
 var baseDir = Path$LidcoreBsNode.normalize("" + (String(cwd) + "/../../.."));
 

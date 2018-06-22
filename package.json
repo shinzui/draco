@@ -29,7 +29,7 @@
     "@google-cloud/firestore": "^0.14.1",
     "@google-cloud/pubsub": "^0.18.0",
     "@lidcore/bs-express": "^1.0.1",
-    "@lidcore/bs-node": "^1.2.1",
+    "@lidcore/bs-node": "git+https://github.com/lidcore/bs-node.git",
     "bs-async-monad": "^1.1.1",
     "bs-platform": "^3.1.4",
     "cli-spinner": "^0.2.8",
@@ -37,7 +37,8 @@
     "firebase-admin": "^5.12.1",
     "firebase-functions": "^1.0.4",
     "node-yaml": "^3.1.1",
-    "redis": "^2.8.0"
+    "redis": "^2.8.0",
+    "tmp": "0.0.33"
   },
   "author": "Lidcore IT <it@lidcore.com>",
   "license": "BSD-2-Clause",
