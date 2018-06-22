@@ -155,10 +155,13 @@ module Config = struct
     in
     let compute =
       Gcloud.Compute.init
-        ~config:(Gcloud.Compute.config ~projectId
-                                       ~baseUrl:"https://www.googleapis.com/compute/beta"
-                                       ()) ()
+        ~config:(Gcloud.config ~projectId ()) ()
     in
+    Gcloud.Compute.pushInterceptor compute [%bs.obj{
+      request = fun reqOps ->
+        reqOps##uri #= (Js.String.replace "/v1/" "/beta/" reqOps##uri);
+        reqOps
+    }];
     let zone =
       zone config
     in

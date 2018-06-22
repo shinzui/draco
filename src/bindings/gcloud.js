@@ -90,12 +90,13 @@ function publishBatch(projectId, topic, messages) {
     });
 }
 
-var default_config$1 = {
-  projectId: project
-};
-
 function init$1($staropt$star, _) {
-  return new Compute($staropt$star ? $staropt$star[0] : default_config$1);
+  return new Compute($staropt$star ? $staropt$star[0] : default_config);
+}
+
+function pushInterceptor(c, x) {
+  c.interceptors.push(x);
+  return /* () */0;
 }
 
 function createInstanceGroupManager(options, targetSize, instanceTemplate, t, name) {
@@ -126,7 +127,7 @@ var PubSub = [
   subscribe
 ];
 
-var Compute_001 = [
+var Compute_002 = [
   (function (prim, prim$1) {
       prim.exists(prim$1);
       return /* () */0;
@@ -141,16 +142,16 @@ var Compute_001 = [
     })
 ];
 
-function Compute_002(prim, prim$1) {
+function Compute_003(prim, prim$1) {
   return prim.instanceTemplate(prim$1);
 }
 
-function Compute_003(prim, prim$1, prim$2, prim$3) {
+function Compute_004(prim, prim$1, prim$2, prim$3) {
   prim.createInstanceTemplate(prim$1, prim$2, prim$3);
   return /* () */0;
 }
 
-var Compute_004 = [
+var Compute_005 = [
   [
     (function (prim, prim$1) {
         prim.exists(prim$1);
@@ -199,17 +200,18 @@ var Compute_004 = [
     })
 ];
 
-function Compute_005(prim, prim$1) {
+function Compute_006(prim, prim$1) {
   return prim.zone(prim$1);
 }
 
 var Compute$1 = [
   init$1,
-  Compute_001,
+  pushInterceptor,
   Compute_002,
   Compute_003,
   Compute_004,
-  Compute_005
+  Compute_005,
+  Compute_006
 ];
 
 exports.project = project;

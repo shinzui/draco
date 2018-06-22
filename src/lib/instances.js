@@ -28,8 +28,8 @@ function register(label, handler) {
 
 function run() {
   var zone = Env$LidcoreDraco.get(/* Some */["us-west1-b"], "zone");
-  var instance = Curry._2(Gcloud$LidcoreDraco.Compute[/* Zone */4][/* vm */7], Gcloud$LidcoreDraco.Compute[/* zone */5](Gcloud$LidcoreDraco.Compute[/* init */0](/* None */0, /* () */0), zone), Os$LidcoreBsNode.hostname(/* () */0));
-  return BsAsyncMonad.Callback[/* finish */27](/* Some */[exceptionHandler], BsAsyncMonad.Callback[/* >> */3](Curry._1(Gcloud$LidcoreDraco.Compute[/* Zone */4][/* VM */6][/* getMetadata */0], instance), (function (meta) {
+  var instance = Curry._2(Gcloud$LidcoreDraco.Compute[/* Zone */5][/* vm */7], Gcloud$LidcoreDraco.Compute[/* zone */6](Gcloud$LidcoreDraco.Compute[/* init */0](/* None */0, /* () */0), zone), Os$LidcoreBsNode.hostname(/* () */0));
+  return BsAsyncMonad.Callback[/* finish */27](/* Some */[exceptionHandler], BsAsyncMonad.Callback[/* >> */3](Curry._1(Gcloud$LidcoreDraco.Compute[/* Zone */5][/* VM */6][/* getMetadata */0], instance), (function (meta) {
                     var items = $$Array.to_list(meta.metadata.items);
                     var data = List.find((function (el) {
                             return el.key === "draco_instance_type";
@@ -154,14 +154,19 @@ function components(config) {
   var name = config.name;
   var projectId = config.projectId;
   var compute = Gcloud$LidcoreDraco.Compute[/* init */0](/* Some */[{
-          projectId: projectId,
-          baseUrl: "https://www.googleapis.com/compute/beta"
+          projectId: projectId
         }], /* () */0);
+  Gcloud$LidcoreDraco.Compute[/* pushInterceptor */1](compute, {
+        request: (function (reqOps) {
+            reqOps.uri = reqOps.uri.replace("/v1/", "/beta/");
+            return reqOps;
+          })
+      });
   var zone = config.zone;
-  var instanceTemplate = Gcloud$LidcoreDraco.Compute[/* instanceTemplate */2](compute, name);
-  var zone$1 = Gcloud$LidcoreDraco.Compute[/* zone */5](compute, zone);
-  var instanceGroupManager = Curry._2(Gcloud$LidcoreDraco.Compute[/* Zone */4][/* instanceGroupManager */4], zone$1, name);
-  var autoscaler = Curry._2(Gcloud$LidcoreDraco.Compute[/* Zone */4][/* autoscaler */1], zone$1, name);
+  var instanceTemplate = Gcloud$LidcoreDraco.Compute[/* instanceTemplate */3](compute, name);
+  var zone$1 = Gcloud$LidcoreDraco.Compute[/* zone */6](compute, zone);
+  var instanceGroupManager = Curry._2(Gcloud$LidcoreDraco.Compute[/* Zone */5][/* instanceGroupManager */4], zone$1, name);
+  var autoscaler = Curry._2(Gcloud$LidcoreDraco.Compute[/* Zone */5][/* autoscaler */1], zone$1, name);
   return /* record */[
           /* name */name,
           /* compute */compute,
@@ -199,32 +204,32 @@ function initialize(config) {
   var zone = components$1[/* zone */2];
   var compute = components$1[/* compute */1];
   var createInstanceTemplate = function () {
-    var partial_arg = Curry._1(Gcloud$LidcoreDraco.Compute[/* InstanceTemplate */1][/* exists */0], instanceTemplate);
+    var partial_arg = Curry._1(Gcloud$LidcoreDraco.Compute[/* InstanceTemplate */2][/* exists */0], instanceTemplate);
     var partial_arg$1 = BsAsyncMonad.Callback[/* async_unless */14];
     return (function (param) {
         return partial_arg$1(partial_arg, (function () {
-                      var partial_arg = Gcloud$LidcoreDraco.Compute[/* createInstanceTemplate */3];
+                      var partial_arg = Gcloud$LidcoreDraco.Compute[/* createInstanceTemplate */4];
                       return BsAsyncMonad.Callback[/* >> */3]((function (param) {
                                     return partial_arg(compute, name, instanceTemplateConfig, param);
-                                  }), Gcloud$LidcoreDraco.Compute[/* InstanceTemplate */1][/* get */1]);
+                                  }), Gcloud$LidcoreDraco.Compute[/* InstanceTemplate */2][/* get */1]);
                     }), param);
       });
   };
   var createGroup = function () {
-    var partial_arg = Curry._1(Gcloud$LidcoreDraco.Compute[/* Zone */4][/* InstanceGroupManager */3][/* exists */0], instanceGroupManager);
+    var partial_arg = Curry._1(Gcloud$LidcoreDraco.Compute[/* Zone */5][/* InstanceGroupManager */3][/* exists */0], instanceGroupManager);
     var partial_arg$1 = BsAsyncMonad.Callback[/* async_unless */14];
     return (function (param) {
         return partial_arg$1(partial_arg, (function () {
-                      return BsAsyncMonad.Callback[/* >> */3](Curry._5(Gcloud$LidcoreDraco.Compute[/* Zone */4][/* createInstanceGroupManager */5], /* None */0, 0, instanceTemplate, zone, name), Gcloud$LidcoreDraco.Compute[/* Zone */4][/* InstanceGroupManager */3][/* get */1]);
+                      return BsAsyncMonad.Callback[/* >> */3](Curry._5(Gcloud$LidcoreDraco.Compute[/* Zone */5][/* createInstanceGroupManager */5], /* None */0, 0, instanceTemplate, zone, name), Gcloud$LidcoreDraco.Compute[/* Zone */5][/* InstanceGroupManager */3][/* get */1]);
                     }), param);
       });
   };
   var createAutoscaler = function () {
-    var partial_arg = Curry._1(Gcloud$LidcoreDraco.Compute[/* Zone */4][/* Autoscaler */0][/* exists */0], autoscaler);
+    var partial_arg = Curry._1(Gcloud$LidcoreDraco.Compute[/* Zone */5][/* Autoscaler */0][/* exists */0], autoscaler);
     var partial_arg$1 = BsAsyncMonad.Callback[/* async_unless */14];
     return (function (param) {
         return partial_arg$1(partial_arg, (function () {
-                      var partial_arg = Curry._3(Gcloud$LidcoreDraco.Compute[/* Zone */4][/* createAutoscaler */2], zone, name, autoscaleConfig);
+                      var partial_arg = Curry._3(Gcloud$LidcoreDraco.Compute[/* Zone */5][/* createAutoscaler */2], zone, name, autoscaleConfig);
                       var partial_arg$1 = BsAsyncMonad.Callback[/* discard */10];
                       return (function (param) {
                           return partial_arg$1(partial_arg, param);
@@ -237,7 +242,7 @@ function initialize(config) {
 
 function restart(config) {
   var match = components(config);
-  return Curry._1(Gcloud$LidcoreDraco.Compute[/* Zone */4][/* InstanceGroupManager */3][/* recreateVMs */3], match[/* instanceGroupManager */4]);
+  return Curry._1(Gcloud$LidcoreDraco.Compute[/* Zone */5][/* InstanceGroupManager */3][/* recreateVMs */3], match[/* instanceGroupManager */4]);
 }
 
 function destroy(config) {
@@ -245,32 +250,32 @@ function destroy(config) {
   var autoscaler = match[/* autoscaler */5];
   var instanceGroupManager = match[/* instanceGroupManager */4];
   var instanceTemplate = match[/* instanceTemplate */3];
-  var partial_arg = Curry._1(Gcloud$LidcoreDraco.Compute[/* Zone */4][/* Autoscaler */0][/* exists */0], autoscaler);
+  var partial_arg = Curry._1(Gcloud$LidcoreDraco.Compute[/* Zone */5][/* Autoscaler */0][/* exists */0], autoscaler);
   var partial_arg$1 = BsAsyncMonad.Callback[/* async_if */13];
   var deleteAutoscaler = function (param) {
     return partial_arg$1(partial_arg, (function () {
-                  return BsAsyncMonad.Callback[/* >> */3](Curry._1(Gcloud$LidcoreDraco.Compute[/* Zone */4][/* Autoscaler */0][/* delete */1], autoscaler), (function () {
+                  return BsAsyncMonad.Callback[/* >> */3](Curry._1(Gcloud$LidcoreDraco.Compute[/* Zone */5][/* Autoscaler */0][/* delete */1], autoscaler), (function () {
                                 var partial_arg = BsAsyncMonad.Callback[/* return */0];
                                 var partial_arg$1 = BsAsyncMonad.Callback[/* repeat */11];
                                 return (function (param) {
                                     return partial_arg$1((function () {
-                                                  return Curry._1(Gcloud$LidcoreDraco.Compute[/* Zone */4][/* Autoscaler */0][/* exists */0], autoscaler);
+                                                  return Curry._1(Gcloud$LidcoreDraco.Compute[/* Zone */5][/* Autoscaler */0][/* exists */0], autoscaler);
                                                 }), partial_arg, param);
                                   });
                               }));
                 }), param);
   };
   var deleteGroup = function () {
-    var partial_arg = Curry._1(Gcloud$LidcoreDraco.Compute[/* Zone */4][/* InstanceGroupManager */3][/* exists */0], instanceGroupManager);
+    var partial_arg = Curry._1(Gcloud$LidcoreDraco.Compute[/* Zone */5][/* InstanceGroupManager */3][/* exists */0], instanceGroupManager);
     var partial_arg$1 = BsAsyncMonad.Callback[/* async_if */13];
     return (function (param) {
         return partial_arg$1(partial_arg, (function () {
-                      return BsAsyncMonad.Callback[/* >> */3](Curry._1(Gcloud$LidcoreDraco.Compute[/* Zone */4][/* InstanceGroupManager */3][/* delete */2], instanceGroupManager), (function () {
+                      return BsAsyncMonad.Callback[/* >> */3](Curry._1(Gcloud$LidcoreDraco.Compute[/* Zone */5][/* InstanceGroupManager */3][/* delete */2], instanceGroupManager), (function () {
                                     var partial_arg = BsAsyncMonad.Callback[/* return */0];
                                     var partial_arg$1 = BsAsyncMonad.Callback[/* repeat */11];
                                     return (function (param) {
                                         return partial_arg$1((function () {
-                                                      return Curry._1(Gcloud$LidcoreDraco.Compute[/* Zone */4][/* InstanceGroupManager */3][/* exists */0], instanceGroupManager);
+                                                      return Curry._1(Gcloud$LidcoreDraco.Compute[/* Zone */5][/* InstanceGroupManager */3][/* exists */0], instanceGroupManager);
                                                     }), partial_arg, param);
                                       });
                                   }));
@@ -278,16 +283,16 @@ function destroy(config) {
       });
   };
   var deleteInstanceTemplate = function () {
-    var partial_arg = Curry._1(Gcloud$LidcoreDraco.Compute[/* InstanceTemplate */1][/* exists */0], instanceTemplate);
+    var partial_arg = Curry._1(Gcloud$LidcoreDraco.Compute[/* InstanceTemplate */2][/* exists */0], instanceTemplate);
     var partial_arg$1 = BsAsyncMonad.Callback[/* async_if */13];
     return (function (param) {
         return partial_arg$1(partial_arg, (function () {
-                      return BsAsyncMonad.Callback[/* >> */3](Curry._1(Gcloud$LidcoreDraco.Compute[/* InstanceTemplate */1][/* delete */2], instanceTemplate), (function () {
+                      return BsAsyncMonad.Callback[/* >> */3](Curry._1(Gcloud$LidcoreDraco.Compute[/* InstanceTemplate */2][/* delete */2], instanceTemplate), (function () {
                                     var partial_arg = BsAsyncMonad.Callback[/* return */0];
                                     var partial_arg$1 = BsAsyncMonad.Callback[/* repeat */11];
                                     return (function (param) {
                                         return partial_arg$1((function () {
-                                                      return Curry._1(Gcloud$LidcoreDraco.Compute[/* InstanceTemplate */1][/* exists */0], instanceTemplate);
+                                                      return Curry._1(Gcloud$LidcoreDraco.Compute[/* InstanceTemplate */2][/* exists */0], instanceTemplate);
                                                     }), partial_arg, param);
                                       });
                                   }));

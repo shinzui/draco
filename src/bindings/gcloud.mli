@@ -47,12 +47,9 @@ end
 module Compute : sig
   type t
 
-  type config = {
-    projectId : string [@bs.optional];
-    baseUrl:    string [@bs.optional]
-  } [@@bs.deriving abstract]
-
   val init : ?config:config -> unit -> t
+
+  val pushInterceptor : t -> 'a Js.t -> unit 
 
   module InstanceTemplate : sig
     type t

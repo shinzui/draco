@@ -108,16 +108,13 @@ end
 module Compute = struct
   type t
 
-  type config = {
-    projectId : string [@bs.optional];
-    baseUrl:    string [@bs.optional]
-  } [@@bs.deriving abstract]
-
-  let default_config =
-    config ~projectId:project ()
-
   external init : config -> t = "@google-cloud/compute" [@@bs.module] [@@bs.new]
   let init ?(config=default_config) () = init config
+
+  external interceptors : t -> 'a Js.t array = "" [@@bs.get]
+
+  let pushInterceptor c x =
+    ignore(Js.Array.push x (interceptors c))
 
   module InstanceTemplate = struct
     type t
