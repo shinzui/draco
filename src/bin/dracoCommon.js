@@ -2,6 +2,7 @@
 'use strict';
 
 var Arg = require("bs-platform/lib/js/arg.js");
+var $$Array = require("bs-platform/lib/js/array.js");
 var Block = require("bs-platform/lib/js/block.js");
 var Js_exn = require("bs-platform/lib/js/js_exn.js");
 var Caml_array = require("bs-platform/lib/js/caml_array.js");
@@ -13,6 +14,10 @@ var Buffer$LidcoreBsNode = require("@lidcore/bs-node/src/buffer.js");
 var Process$LidcoreBsNode = require("@lidcore/bs-node/src/process.js");
 
 var stage = ["staging"];
+
+var argc = Process$LidcoreBsNode.argv.length - 1 | 0;
+
+var argv = $$Array.sub(Process$LidcoreBsNode.argv, 1, argc);
 
 var args_000 = /* tuple */[
   "-stage",
@@ -41,8 +46,11 @@ catch (raw_exn){
   
 }
 
+var usageMsg = ["Usage: draco [mode] [options] [-stage <stage>]"];
+
 function usage(opts) {
-  return "Usage: draco " + (String(opts) + " [-stage <stage]");
+  usageMsg[0] = "Usage: draco [mode] " + (String(opts) + " [-stage <stage>]");
+  return /* () */0;
 }
 
 var cwd = Caml_array.caml_array_get(Process$LidcoreBsNode.argv, 1);
@@ -57,26 +65,23 @@ function config() {
   return Yaml$LidcoreDraco.parse(Buffer$LidcoreBsNode.toString(/* None */0, /* None */0, /* None */0, Fs$LidcoreBsNode.readFileSync(configPath)));
 }
 
-function die(msg, usage, _) {
-  var fn = function (msg) {
-    if (msg) {
-      return Logger$LidcoreDraco.error(msg[0]);
-    } else {
-      return /* () */0;
-    }
-  };
-  fn(msg);
-  fn(usage);
+function die(msg, _) {
+  if (msg) {
+    Logger$LidcoreDraco.error(msg[0]);
+  }
+  Logger$LidcoreDraco.error(usageMsg[0]);
   return Process$LidcoreBsNode.exit(1);
 }
 
 if (!Fs$LidcoreBsNode.existsSync(configPath)) {
-  die(/* Some */["Couldn\'t find config file " + (String(configPath) + "")], /* None */0, /* () */0);
+  die(/* Some */["Couldn\'t find config file " + (String(configPath) + "")], /* () */0);
 }
 
+exports.argc = argc;
+exports.argv = argv;
 exports.baseDir = baseDir;
 exports.usage = usage;
 exports.configPath = configPath;
 exports.config = config;
 exports.die = die;
-/*  Not a pure module */
+/* argv Not a pure module */

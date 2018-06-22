@@ -10,9 +10,7 @@ var Caml_builtin_exceptions = require("bs-platform/lib/js/caml_builtin_exception
 var DracoCommon$LidcoreDraco = require("./dracoCommon.js");
 var Child_process$LidcoreBsNode = require("@lidcore/bs-node/src/child_process.js");
 
-var usage = DracoCommon$LidcoreDraco.usage("image build [base|app|both]");
-
-var arg = /* Some */[usage];
+DracoCommon$LidcoreDraco.usage("image build [base|app|both]");
 
 function packer(args, config) {
   var config$1 = Utils$LidcoreDraco.$$escape("" + (String(DracoCommon$LidcoreDraco.baseDir) + ("/packer/" + (String(config) + ""))));
@@ -42,17 +40,15 @@ function packer(args, config) {
   return /* () */0;
 }
 
-var argc = Process$LidcoreBsNode.argv.length;
-
-if (argc !== 4) {
-  DracoCommon$LidcoreDraco.die(/* None */0, arg, /* () */0);
+if (DracoCommon$LidcoreDraco.argc !== 4) {
+  DracoCommon$LidcoreDraco.die(/* None */0, /* () */0);
 }
 
-if (Caml_array.caml_array_get(Process$LidcoreBsNode.argv, 2) !== "build") {
-  DracoCommon$LidcoreDraco.die(/* None */0, arg, /* () */0);
+if (Caml_array.caml_array_get(DracoCommon$LidcoreDraco.argv, 2) !== "build") {
+  DracoCommon$LidcoreDraco.die(/* None */0, /* () */0);
 }
 
-var match = Caml_array.caml_array_get(Process$LidcoreBsNode.argv, 3);
+var match = Caml_array.caml_array_get(DracoCommon$LidcoreDraco.argv, 3);
 
 var mode;
 
@@ -67,7 +63,7 @@ switch (match) {
       mode = /* Both */737457313;
       break;
   default:
-    mode = DracoCommon$LidcoreDraco.die(/* Some */["Invalid mode"], arg, /* () */0);
+    mode = DracoCommon$LidcoreDraco.die(/* Some */["Invalid mode"], /* () */0);
 }
 
 var config = DracoCommon$LidcoreDraco.config(/* () */0);
@@ -95,7 +91,7 @@ if (mode !== 736760881) {
         Caml_builtin_exceptions.assert_failure,
         [
           "dracoImage.ml",
-          50,
+          49,
           11
         ]
       ];
@@ -103,4 +99,4 @@ if (mode !== 736760881) {
   packer(args, "base.json");
 }
 
-/* usage Not a pure module */
+/*  Not a pure module */

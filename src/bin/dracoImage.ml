@@ -7,8 +7,8 @@ type build = [
   | `Both [@bs.as "base and application"]
 ] [@@bs.deriving jsConverter]
 
-let usage = usage "image build [base|app|both]"
-let die = die ~usage
+let () =
+  usage "image build [base|app|both]"
 
 let packer ~args config =
   let baseDir =
@@ -30,11 +30,10 @@ let packer ~args config =
   ignore(Child_process.spawn ~shell:true ~stdio {j|packer build -force $(args) $(config)|j}) 
 
 let () =
-  let argc = Array.length Process.argv in
   if argc <> 4 then die ();
-  if Process.argv.(2) <> "build" then die ();
+  if argv.(2) <> "build" then die ();
   let mode =
-    match Process.argv.(3) with
+    match argv.(3) with
       | "base" -> `Base
       | "app"  -> `App
       | "both" -> `Both

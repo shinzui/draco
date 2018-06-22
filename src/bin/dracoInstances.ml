@@ -8,20 +8,19 @@ type operation = [
   | `Destroy [@bs.as "Destroying"]
 ] [@@bs.deriving jsConverter]
 
-let usage = usage "instances [create|restart|destroy] instance-group-name"
-let die = die ~usage
+let () =
+  usage "instances [create|restart|destroy] instance-group-name"
 
 let () =
-  let argc = Array.length Process.argv in
   if argc <> 4 then die ();
   let operation = 
-    match Process.argv.(2) with
+    match argv.(2) with
       | "create" -> `Create
       | "restart" -> `Restart
       | "destroy" -> `Destroy
       | _ -> die ~msg:"Invalid mode" ()
   in
-  let name = Process.argv.(3) in
+  let name = argv.(3) in
   let config = config () in
   let projectId =
     config##projectId

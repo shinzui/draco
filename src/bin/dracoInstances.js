@@ -10,7 +10,6 @@ var Caml_array = require("bs-platform/lib/js/caml_array.js");
 var Js_mapperRt = require("bs-platform/lib/js/js_mapperRt.js");
 var BsAsyncMonad = require("bs-async-monad/src/bsAsyncMonad.js");
 var Spinner$LidcoreDraco = require("../bindings/spinner.js");
-var Process$LidcoreBsNode = require("@lidcore/bs-node/src/process.js");
 var Instances$LidcoreDraco = require("../lib/instances.js");
 var Caml_builtin_exceptions = require("bs-platform/lib/js/caml_builtin_exceptions.js");
 var DracoCommon$LidcoreDraco = require("./dracoCommon.js");
@@ -30,17 +29,13 @@ var jsMapperConstantArray = /* array */[
   ]
 ];
 
-var usage = DracoCommon$LidcoreDraco.usage("instances [create|restart|destroy] instance-group-name");
+DracoCommon$LidcoreDraco.usage("instances [create|restart|destroy] instance-group-name");
 
-var arg = /* Some */[usage];
-
-var argc = Process$LidcoreBsNode.argv.length;
-
-if (argc !== 4) {
-  DracoCommon$LidcoreDraco.die(/* None */0, arg, /* () */0);
+if (DracoCommon$LidcoreDraco.argc !== 4) {
+  DracoCommon$LidcoreDraco.die(/* None */0, /* () */0);
 }
 
-var match = Caml_array.caml_array_get(Process$LidcoreBsNode.argv, 2);
+var match = Caml_array.caml_array_get(DracoCommon$LidcoreDraco.argv, 2);
 
 var operation;
 
@@ -55,10 +50,10 @@ switch (match) {
       operation = /* Restart */938930095;
       break;
   default:
-    operation = DracoCommon$LidcoreDraco.die(/* Some */["Invalid mode"], arg, /* () */0);
+    operation = DracoCommon$LidcoreDraco.die(/* Some */["Invalid mode"], /* () */0);
 }
 
-var name = Caml_array.caml_array_get(Process$LidcoreBsNode.argv, 3);
+var name = Caml_array.caml_array_get(DracoCommon$LidcoreDraco.argv, 3);
 
 var config = DracoCommon$LidcoreDraco.config(/* () */0);
 
@@ -79,7 +74,7 @@ try {
 }
 catch (exn){
   if (exn === Caml_builtin_exceptions.not_found) {
-    config$1 = DracoCommon$LidcoreDraco.die(/* Some */["No config for instance group " + (String(name) + (" in " + (String(DracoCommon$LidcoreDraco.configPath) + "")))], arg, /* () */0);
+    config$1 = DracoCommon$LidcoreDraco.die(/* Some */["No config for instance group " + (String(name) + (" in " + (String(DracoCommon$LidcoreDraco.configPath) + "")))], /* () */0);
   } else {
     throw exn;
   }
@@ -127,4 +122,4 @@ BsAsyncMonad.Callback[/* finish */27](/* None */0, BsAsyncMonad.Callback[/* &> *
               });
           })));
 
-/* usage Not a pure module */
+/*  Not a pure module */

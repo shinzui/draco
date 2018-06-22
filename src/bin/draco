@@ -7,10 +7,10 @@ CWD=$(cd ${DIR} && pwd)
 
 case ${MODE} in
   "image")
-    "${CWD}/draco-image" "$2" "$3"
+    "${CWD}/draco-image" "$@"
     ;;
   "instances")
-    "${CWD}/draco-instances" "$2" "$3"
+    "${CWD}/draco-instances" "$@"
     ;;
   "functions")
     # TODO

@@ -2,6 +2,9 @@ open LidcoreBsNode
 
 let stage = ref "staging"
 
+let argc = Array.length Process.argv - 1
+let argv = Array.sub Process.argv 1 argc
+
 let () =
   let args = [
     "-stage", Arg.Set_string stage, "Set stage"
@@ -11,8 +14,10 @@ let () =
   with
     | Arg.Help _ | Arg.Bad _ -> ()
 
+let usageMsg = ref "Usage: draco [mode] [options] [-stage <stage>]"
+
 let usage opts =
-  {j|Usage: draco $(opts) [-stage <stage]|j}
+  usageMsg := {j|Usage: draco [mode] $(opts) [-stage <stage>]|j}
 
 let baseDir =
   let cwd = Process.argv.(1) in
@@ -26,13 +31,13 @@ let config () = Yaml.parse
   (Buffer.toString
     (Fs.readFileSync configPath))
 
-let die ?msg ?usage () =
-  let fn msg =
+let die ?msg () =
+  begin
    match msg with
      | Some msg -> Logger.error msg
      | None -> ()
-  in
-  fn msg; fn usage;
+  end;
+  Logger.error !usageMsg;
   Process.exit 1
 
 let () =
