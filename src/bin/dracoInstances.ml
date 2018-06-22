@@ -9,42 +9,32 @@ type operation = [
 
 external argv : string array = "" [@@bs.val] [@@bs.scope "process"]
 
-let usage = "Usage: draco [-create|-restart|-destroy] /path/to/config.json"
+let usage = "Usage: draco [create|restart|destroy] /path/to/config.json"
 
 external exit : int -> 'a = "" [@@bs.val] [@@bs.scope "process"]
 
-let operation = ref `Create
-
-let configPath = ref ""
-
-let args = [
-  "-create", Arg.Unit (fun () -> operation := `Create), "Create instances (default)";
-  "-restart", Arg.Unit (fun () -> operation := `Restart), "Restart existing instances";
-  "-destroy", Arg.Unit (fun () -> operation := `Destroy), "Destroy existing cluster"
-]
-
 let die ?(msg=usage) () =
-  Js.log msg;
+  Logger.error msg;
   exit 1
 
 let () =
   let argc = Array.length argv in
-  if argc < 3 then die ();
-  begin
-   try
-     Arg.parse_argv (Array.sub argv 1 (argc-1)) args (fun path -> configPath := path) usage;
-   with
-     | Arg.Help msg
-     | Arg.Bad msg -> die ~msg ();
-  end;
-  if !configPath = "" then die ();
+  if argc <> 4 then die ();
+  let operation = 
+    match argv.(2) with
+      | "create" -> `Create
+      | "restart" -> `Restart
+      | "destroy" -> `Destroy
+      | _ -> die ~msg:"Invalid mode" ()
+  in
+  let configPath = argv.(3) in
   let config =
     Obj.magic
       (Utils.Json.parse_buf
-        (Fs.readFileSync !configPath))
+        (Fs.readFileSync configPath))
   in
   let fn =
-    match !operation with
+    match operation with
       | `Create ->
           Instances.Config.initialize
       | `Restart ->
@@ -56,7 +46,7 @@ let () =
     config |. Instances.Config.name
   in
   let operation =
-    operationToJs !operation
+    operationToJs operation
   in
   let spinner =
     Spinner.init {j|$(operation) $(name).. %s|j};
