@@ -23,7 +23,7 @@ let baseDir =
   let cwd =
     Fs.realpathSync Process.argv.(1)
   in
-  Path.normalize {j|$(cwd)/../../..|j}
+  Path.normalize {j|$(cwd)/../../../../..|j}
 
 let configPath =
   let stage = !stage in
