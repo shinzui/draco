@@ -35,7 +35,6 @@ function builder(projectId, zone, _) {
           ssh_username: "ubuntu",
           image_name: "draco-base",
           image_family: "draco",
-          instance_name: "draco-build-base",
           machine_type: "n1-standard-1",
           disk_size: "50",
           disk_type: "pd-ssd"
@@ -155,7 +154,7 @@ if (mode !== 736760881) {
         Caml_builtin_exceptions.assert_failure,
         [
           "dracoImage.ml",
-          131,
+          129,
           11
         ]
       ];

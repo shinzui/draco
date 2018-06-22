@@ -37,7 +37,6 @@ type builder = {
   ssh_username: string;
   image_name: string;
   image_family: string;
-  instance_name: string;
   machine_type: string;
   disk_size: string;
   disk_type: string
@@ -50,7 +49,6 @@ let builder ~projectId ~zone mode =
     ~zone ~ssh_username:"ubuntu"
     ~image_name:"draco-base"
     ~image_family:"draco"
-    ~instance_name:"draco-build-base"
     ~machine_type:"n1-standard-1"
     ~disk_size:"50"
     ~disk_type:"pd-ssd"
