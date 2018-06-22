@@ -55,7 +55,7 @@ function usage(opts) {
 
 var cwd = Fs$LidcoreBsNode.realpathSync(Caml_array.caml_array_get(Process$LidcoreBsNode.argv, 1));
 
-var baseDir = Path$LidcoreBsNode.normalize("" + (String(cwd) + "/../../../../.."));
+var baseDir = Path$LidcoreBsNode.normalize("" + (String(cwd) + "/../../../../../.."));
 
 var stage$1 = stage[0];
 
