@@ -3,9 +3,11 @@ open DracoCommon
 
 type build = [
   | `Base [@bs.as "base"]
-  | `App  [@bs.as "application"]
-  | `Both [@bs.as "base and application"]
+  | `App  [@bs.as "app"]
+  | `Both [@bs.as "both"]
 ] [@@bs.deriving jsConverter]
+
+let default_mode = `Both
 
 let () =
   usage "image build [base|app|both]"
@@ -14,11 +16,15 @@ external __dirname : string = "" [@@bs.val]
 
 type provisioner = {
   ptype:  string [@bs.as "type"];
-  script: string;
-  environment_vars: string array
+  (* Script provisioner *)
+  script: string [@bs.optional];
+  environment_vars: string array [@bs.optional];
+  (* File provisioner *)
+  source: string [@bs.optional];
+  destination: string [@bs.optional]
 } [@@bs.deriving abstract]
 
-let provisioner ~projectId ~zone mode =
+let buildProvisioner ~projectId ~zone mode =
   let script =
     Fs.realpathSync {j|$(__dirname)/../../packer/$(mode).sh|j}
   in
@@ -27,7 +33,12 @@ let provisioner ~projectId ~zone mode =
     ~environment_vars:[|
       {j|PROJECT=$(projectId)|j};
       {j|ZONE=$(zone)|j}
-    |]
+    |] ()
+
+let systemdProvisioner =
+  provisioner ~ptype:"file"
+              ~source:"./packer/draco.system.in"
+              ~destination:"/tmp" ()
 
 type builder = {
   btype: string [@bs.as "type"];
@@ -37,18 +48,20 @@ type builder = {
   ssh_username: string;
   image_name: string;
   image_family: string;
+  instance_name: string;
   machine_type: string;
   disk_size: string;
   disk_type: string
 } [@@bs.deriving abstract]
 
-let builder ~projectId ~zone mode =
+let builder ~image_name ~instance_name ~projectId ~zone mode =
   builder ~btype:"googlecompute"
     ~project_id:projectId
     ~source_image_family:"ubuntu-1604-lts"
     ~zone ~ssh_username:"ubuntu"
-    ~image_name:"draco-base"
+    ~image_name
     ~image_family:"draco"
+    ~instance_name
     ~machine_type:"n1-standard-1"
     ~disk_size:"50"
     ~disk_type:"pd-ssd"
@@ -58,13 +71,18 @@ type packerConfig = {
   builders: builder array
 } [@@bs.deriving abstract]
 
-let getConfig ~tmp ~config mode =
-  let projectId = config##projectId in
-  let zone = config##zone in
-  let provisioner =
-    provisioner ~projectId ~zone mode
+let provisioners ~projectId ~zone ~config mode =
+  let buildProvisioners =
+    let buildProvisioner =
+      buildProvisioner ~projectId ~zone mode
+    in
+    match buildFromJs mode with
+      | Some `App | Some `Both ->
+          [|buildProvisioner;systemdProvisioner|]
+      | _ ->
+          [|buildProvisioner|]
   in
-  let provisioners =
+  let customProvisioners =
     match Js.Nullable.toOption config##image with
       | Some config ->
           (match Js.Dict.get config mode with
@@ -75,12 +93,44 @@ let getConfig ~tmp ~config mode =
             | None -> [||])
       | None -> [||]
   in
-  ignore(Js.Array.unshift provisioner provisioners);
-  let builder =
-    builder ~projectId ~zone mode
+  Js.Array.concat buildProvisioners customProvisioners
+
+let buildConfig ~config mode =
+  let projectId = config##projectId in
+  let zone = config##zone in
+  let smode =
+    buildToJs mode
   in
+  let provisioners =
+    match mode with
+      | `Both -> 
+          let baseProvisioners =
+            provisioners ~projectId ~zone ~config "base"
+          in
+          Js.Array.concat baseProvisioners
+            (provisioners ~projectId ~zone ~config "app")
+      | _ ->
+          provisioners ~projectId ~zone ~config smode
+  in
+  let instance_name =
+    {j|draco-$(smode)|j}
+  in
+  let image_name =
+    let iname =
+      match mode with
+        | `Both -> "app"
+        | _ -> smode
+    in
+    {j|draco-$(iname)|j}
+  in
+  let builder =
+    builder ~projectId ~zone ~instance_name ~image_name mode
+  in
+  packerConfig ~provisioners ~builders:[|builder|]
+
+let getConfig ~tmp ~config mode =
   let packerConfig =
-    packerConfig ~provisioners ~builders:[|builder|]
+    buildConfig ~config mode
   in
   let path =
     Tmp.make ~postfix:".json" tmp
@@ -110,21 +160,21 @@ let packer ~args ~config mode =
     Tmp.cleanup tmp))
 
 let () =
-  if argc <> 4 then die ();
+  if argc < 3 then die ();
   if argv.(2) <> "build" then die ();
   let mode =
-    match argv.(3) with
-      | "base" -> `Base
-      | "app"  -> `App
-      | "both" -> `Both
-      | _ -> die ~msg:"Invalid mode" ()
+    try
+      match argv.(3) with
+        | "base" -> `Base
+        | "app"  -> `App
+        | "both" -> `Both
+        | x -> die ~msg:{j|Invalid mode: $(x)|j} ()
+     with
+       | Invalid_argument "index out of bounds" -> default_mode
   in
   let config = config () in
   let args = [
     "project", config##projectId;
     "zone", config##zone
   ] in
-  match mode with
-    | `Base -> packer ~args ~config "base"
-    | _ -> assert false
-
+  packer ~args ~config mode

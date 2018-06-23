@@ -2,8 +2,10 @@
 'use strict';
 
 var List = require("bs-platform/lib/js/list.js");
+var Js_exn = require("bs-platform/lib/js/js_exn.js");
 var $$String = require("bs-platform/lib/js/string.js");
 var Caml_array = require("bs-platform/lib/js/caml_array.js");
+var Js_mapperRt = require("bs-platform/lib/js/js_mapperRt.js");
 var Fs$LidcoreBsNode = require("@lidcore/bs-node/src/fs.js");
 var Tmp$LidcoreDraco = require("../bindings/tmp.js");
 var Utils$LidcoreDraco = require("../lib/utils.js");
@@ -12,9 +14,24 @@ var Caml_builtin_exceptions = require("bs-platform/lib/js/caml_builtin_exception
 var DracoCommon$LidcoreDraco = require("./dracoCommon.js");
 var Child_process$LidcoreBsNode = require("@lidcore/bs-node/src/child_process.js");
 
+var jsMapperConstantArray = /* array */[
+  /* tuple */[
+    3257473,
+    "app"
+  ],
+  /* tuple */[
+    736760881,
+    "base"
+  ],
+  /* tuple */[
+    737457313,
+    "both"
+  ]
+];
+
 DracoCommon$LidcoreDraco.usage("image build [base|app|both]");
 
-function provisioner(projectId, zone, mode) {
+function buildProvisioner(projectId, zone, mode) {
   var script = Fs$LidcoreBsNode.realpathSync("" + (String(__dirname) + ("/../../packer/" + (String(mode) + ".sh"))));
   return {
           type: "shell",
@@ -26,44 +43,85 @@ function provisioner(projectId, zone, mode) {
         };
 }
 
-function builder(projectId, zone, _) {
+var systemdProvisioner = {
+  type: "file",
+  source: "./packer/draco.system.in",
+  destination: "/tmp"
+};
+
+function builder(image_name, instance_name, projectId, zone, _) {
   return {
           type: "googlecompute",
           project_id: projectId,
           source_image_family: "ubuntu-1604-lts",
           zone: zone,
           ssh_username: "ubuntu",
-          image_name: "draco-base",
+          image_name: image_name,
           image_family: "draco",
+          instance_name: instance_name,
           machine_type: "n1-standard-1",
           disk_size: "50",
           disk_type: "pd-ssd"
         };
 }
 
-function getConfig(tmp, config, mode) {
-  var projectId = config.projectId;
-  var zone = config.zone;
-  var provisioner$1 = provisioner(projectId, zone, mode);
-  var match = config.image;
-  var provisioners;
-  if (match == null) {
-    provisioners = /* array */[];
+function provisioners(projectId, zone, config, mode) {
+  var buildProvisioner$1 = buildProvisioner(projectId, zone, mode);
+  var match = Js_mapperRt.revSearch(3, jsMapperConstantArray, mode);
+  var buildProvisioners;
+  if (match) {
+    var match$1 = match[0];
+    buildProvisioners = match$1 !== 3257473 ? (
+        match$1 !== 737457313 ? /* array */[buildProvisioner$1] : /* array */[
+            buildProvisioner$1,
+            systemdProvisioner
+          ]
+      ) : /* array */[
+        buildProvisioner$1,
+        systemdProvisioner
+      ];
   } else {
-    var match$1 = match[mode];
-    if (match$1 !== undefined) {
-      var match$2 = match$1.provisioners;
-      provisioners = (match$2 == null) ? /* array */[] : match$2;
+    buildProvisioners = /* array */[buildProvisioner$1];
+  }
+  var match$2 = config.image;
+  var customProvisioners;
+  if (match$2 == null) {
+    customProvisioners = /* array */[];
+  } else {
+    var match$3 = match$2[mode];
+    if (match$3 !== undefined) {
+      var match$4 = match$3.provisioners;
+      customProvisioners = (match$4 == null) ? /* array */[] : match$4;
     } else {
-      provisioners = /* array */[];
+      customProvisioners = /* array */[];
     }
   }
-  provisioners.unshift(provisioner$1);
-  var builder$1 = builder(projectId, zone, mode);
-  var packerConfig = {
-    provisioners: provisioners,
-    builders: /* array */[builder$1]
-  };
+  return customProvisioners.concat(buildProvisioners);
+}
+
+function buildConfig(config, mode) {
+  var projectId = config.projectId;
+  var zone = config.zone;
+  var smode = Js_mapperRt.binarySearch(3, mode, jsMapperConstantArray);
+  var provisioners$1;
+  if (mode !== 737457313) {
+    provisioners$1 = provisioners(projectId, zone, config, smode);
+  } else {
+    var baseProvisioners = provisioners(projectId, zone, config, "base");
+    provisioners$1 = provisioners(projectId, zone, config, "app").concat(baseProvisioners);
+  }
+  var instance_name = "draco-" + (String(smode) + "");
+  var iname = mode !== 737457313 ? smode : "app";
+  var image_name = "draco-" + (String(iname) + "");
+  var builder$1 = builder(image_name, instance_name, projectId, zone, mode);
+  return {
+          provisioners: provisioners$1,
+          builders: /* array */[builder$1]
+        };
+}
+
+function getConfig(tmp, config, mode) {
+  var packerConfig = buildConfig(config, mode);
   var path = Tmp$LidcoreDraco.make(/* None */0, /* None */0, /* Some */[".json"], tmp);
   Fs$LidcoreBsNode.writeFileSync(path, Utils$LidcoreDraco.Json[/* stringify */2](packerConfig));
   return path;
@@ -103,7 +161,7 @@ function packer(args, config, mode) {
             ]);
 }
 
-if (DracoCommon$LidcoreDraco.argc !== 4) {
+if (DracoCommon$LidcoreDraco.argc < 3) {
   DracoCommon$LidcoreDraco.die(/* None */0, /* () */0);
 }
 
@@ -111,22 +169,35 @@ if (Caml_array.caml_array_get(DracoCommon$LidcoreDraco.argv, 2) !== "build") {
   DracoCommon$LidcoreDraco.die(/* None */0, /* () */0);
 }
 
-var match = Caml_array.caml_array_get(DracoCommon$LidcoreDraco.argv, 3);
-
 var mode;
 
-switch (match) {
-  case "app" : 
-      mode = /* App */3257473;
-      break;
-  case "base" : 
-      mode = /* Base */736760881;
-      break;
-  case "both" : 
+try {
+  var x = Caml_array.caml_array_get(DracoCommon$LidcoreDraco.argv, 3);
+  switch (x) {
+    case "app" : 
+        mode = /* App */3257473;
+        break;
+    case "base" : 
+        mode = /* Base */736760881;
+        break;
+    case "both" : 
+        mode = /* Both */737457313;
+        break;
+    default:
+      mode = DracoCommon$LidcoreDraco.die(/* Some */["Invalid mode: " + (String(x) + "")], /* () */0);
+  }
+}
+catch (raw_exn){
+  var exn = Js_exn.internalToOCamlException(raw_exn);
+  if (exn[0] === Caml_builtin_exceptions.invalid_argument) {
+    if (exn[1] === "index out of bounds") {
       mode = /* Both */737457313;
-      break;
-  default:
-    mode = DracoCommon$LidcoreDraco.die(/* Some */["Invalid mode"], /* () */0);
+    } else {
+      throw exn;
+    }
+  } else {
+    throw exn;
+  }
 }
 
 var config = DracoCommon$LidcoreDraco.config(/* () */0);
@@ -149,17 +220,6 @@ var args = /* :: */[
   args_001
 ];
 
-if (mode !== 736760881) {
-  throw [
-        Caml_builtin_exceptions.assert_failure,
-        [
-          "dracoImage.ml",
-          129,
-          11
-        ]
-      ];
-} else {
-  packer(args, config, "base");
-}
+packer(args, config, mode);
 
 /*  Not a pure module */
