@@ -48,7 +48,8 @@ let systemdProvisioner =
 type builder = {
   btype: string [@bs.as "type"];
   project_id: string;
-  source_image_family: string;
+  source_image_family: string [@bs.optional];
+  source_image: string [@bs.optional];
   zone: string;
   ssh_username: string;
   image_name: string;
@@ -59,10 +60,11 @@ type builder = {
   disk_type: string
 } [@@bs.deriving abstract]
 
-let builder ~image_name ~instance_name ~projectId ~zone mode =
+let builder ?source_image ?source_image_family
+            ~image_name ~instance_name ~projectId ~zone mode =
   builder ~btype:"googlecompute"
     ~project_id:projectId
-    ~source_image_family:"ubuntu-1604-lts"
+    ?source_image_family ?source_image
     ~zone ~ssh_username:"ubuntu"
     ~image_name
     ~image_family:"draco"
@@ -128,8 +130,17 @@ let buildConfig ~config mode =
     in
     {j|draco-$(iname)|j}
   in
+  let source_image, source_image_family =
+    match mode with
+      | `Both | `Base ->
+          None, Some "ubuntu-1604-lts"
+      | `App ->
+          Some "draco-base", Some "draco-images"
+  in
   let builder =
-    builder ~projectId ~zone ~instance_name ~image_name mode
+    builder ?source_image ?source_image_family
+            ~projectId ~zone ~instance_name
+            ~image_name mode ()
   in
   packerConfig ~provisioners ~builders:[|builder|]
 

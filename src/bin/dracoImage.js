@@ -55,20 +55,28 @@ var systemdProvisioner = {
   destination: "/tmp"
 };
 
-function builder(image_name, instance_name, projectId, zone, _) {
-  return {
-          type: "googlecompute",
-          project_id: projectId,
-          source_image_family: "ubuntu-1604-lts",
-          zone: zone,
-          ssh_username: "ubuntu",
-          image_name: image_name,
-          image_family: "draco",
-          instance_name: instance_name,
-          machine_type: "n1-standard-1",
-          disk_size: "50",
-          disk_type: "pd-ssd"
-        };
+function builder(source_image, source_image_family, image_name, instance_name, projectId, zone, _) {
+  return (function () {
+      var tmp = {
+        type: "googlecompute",
+        project_id: projectId,
+        zone: zone,
+        ssh_username: "ubuntu",
+        image_name: image_name,
+        image_family: "draco",
+        instance_name: instance_name,
+        machine_type: "n1-standard-1",
+        disk_size: "50",
+        disk_type: "pd-ssd"
+      };
+      if (source_image_family) {
+        tmp.source_image_family = source_image_family[0];
+      }
+      if (source_image) {
+        tmp.source_image = source_image[0];
+      }
+      return tmp;
+    });
 }
 
 function provisioners(projectId, zone, config, mode) {
@@ -119,7 +127,14 @@ function buildConfig(config, mode) {
   var instance_name = "draco-" + (String(smode) + "");
   var iname = mode !== 737457313 ? smode : "app";
   var image_name = "draco-" + (String(iname) + "");
-  var builder$1 = builder(image_name, instance_name, projectId, zone, mode);
+  var match = mode >= 736760881 ? /* tuple */[
+      /* None */0,
+      /* Some */["ubuntu-1604-lts"]
+    ] : /* tuple */[
+      /* Some */["draco-base"],
+      /* Some */["draco-images"]
+    ];
+  var builder$1 = builder(match[0], match[1], image_name, instance_name, projectId, zone, mode)(/* () */0);
   return {
           provisioners: provisioners$1,
           builders: /* array */[builder$1]
