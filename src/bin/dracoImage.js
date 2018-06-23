@@ -96,7 +96,7 @@ function provisioners(projectId, zone, config, mode) {
       customProvisioners = /* array */[];
     }
   }
-  return customProvisioners.concat(buildProvisioners);
+  return buildProvisioners.concat(customProvisioners);
 }
 
 function buildConfig(config, mode) {
