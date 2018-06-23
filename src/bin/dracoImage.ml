@@ -93,7 +93,7 @@ let provisioners ~projectId ~zone ~config mode =
             | None -> [||])
       | None -> [||]
   in
-  Js.Array.concat customProvisioners buildProvisioners
+  Js.Array.concat buildProvisioners customProvisioners
 
 let buildConfig ~config mode =
   let projectId = config##projectId in
