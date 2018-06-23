@@ -31,8 +31,12 @@ var jsMapperConstantArray = /* array */[
 
 DracoCommon$LidcoreDraco.usage("image build [base|app|both]");
 
+function getPath(file) {
+  return Fs$LidcoreBsNode.realpathSync("" + (String(__dirname) + ("/../../" + (String(file) + ""))));
+}
+
 function buildProvisioner(projectId, zone, mode) {
-  var script = Fs$LidcoreBsNode.realpathSync("" + (String(__dirname) + ("/../../packer/" + (String(mode) + ".sh"))));
+  var script = getPath("packer/" + (String(mode) + ".sh"));
   return {
           type: "shell",
           script: script,
@@ -43,9 +47,11 @@ function buildProvisioner(projectId, zone, mode) {
         };
 }
 
+var source = getPath("packer/draco.system.in");
+
 var systemdProvisioner = {
   type: "file",
-  source: "./packer/draco.system.in",
+  source: source,
   destination: "/tmp"
 };
 

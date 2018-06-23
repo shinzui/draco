@@ -24,9 +24,12 @@ type provisioner = {
   destination: string [@bs.optional]
 } [@@bs.deriving abstract]
 
+let getPath file =
+  Fs.realpathSync {j|$(__dirname)/../../$(file)|j}
+
 let buildProvisioner ~projectId ~zone mode =
   let script =
-    Fs.realpathSync {j|$(__dirname)/../../packer/$(mode).sh|j}
+    getPath {j|packer/$(mode).sh|j}
   in
   provisioner
     ~ptype:"shell" ~script
@@ -36,9 +39,11 @@ let buildProvisioner ~projectId ~zone mode =
     |] ()
 
 let systemdProvisioner =
+  let source =
+    getPath "packer/draco.system.in"
+  in
   provisioner ~ptype:"file"
-              ~source:"./packer/draco.system.in"
-              ~destination:"/tmp" ()
+              ~source ~destination:"/tmp" ()
 
 type builder = {
   btype: string [@bs.as "type"];
