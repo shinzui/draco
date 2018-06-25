@@ -104,7 +104,9 @@ function getCustom(config, mode, name) {
   }
 }
 
-var defaultFiles = /* array */[
+var defaultBaseFiles = /* array */[];
+
+var defaultAppFiles = /* array */[
   "package.json",
   "src",
   "bsconfig.json",
@@ -113,6 +115,27 @@ var defaultFiles = /* array */[
 
 function files(config, mode) {
   var customFiles = getCustom(config, mode, "files");
+  var defaultFiles;
+  switch (mode) {
+    case "app" : 
+        defaultFiles = defaultAppFiles;
+        break;
+    case "base" : 
+        defaultFiles = defaultBaseFiles;
+        break;
+    case "both" : 
+        defaultFiles = $$Array.append(defaultBaseFiles, defaultAppFiles);
+        break;
+    default:
+      throw [
+            Caml_builtin_exceptions.assert_failure,
+            [
+              "dracoImage.ml",
+              118,
+              13
+            ]
+          ];
+  }
   return defaultFiles.concat(customFiles);
 }
 

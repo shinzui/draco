@@ -100,7 +100,8 @@ let getCustom ~config ~mode name =
           | None -> [||])
     | None -> [||]
 
-let defaultFiles = [|
+let defaultBaseFiles = [||]
+let defaultAppFiles = [|
   "package.json"; "src"; "bsconfig.json";
   getPath "packer/draco.system.in"
 |]
@@ -108,6 +109,13 @@ let defaultFiles = [|
 let files ~config mode =
   let customFiles =
     getCustom ~config ~mode "files"
+  in
+  let defaultFiles =
+    match mode with
+      | "base" -> defaultBaseFiles
+      | "app" -> defaultAppFiles
+      | "both" -> Array.append defaultBaseFiles defaultAppFiles
+      | _ -> assert false
   in
   Js.Array.concat customFiles defaultFiles
 
