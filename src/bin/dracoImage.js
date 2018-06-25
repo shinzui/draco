@@ -136,10 +136,10 @@ function provisioners(tmp, projectId, zone, config, mode) {
       if (match$1 !== 737457313) {
         
       } else {
-        provisioners$1.push(filesProvisioner(/* () */0));
+        provisioners$1.unshift(filesProvisioner(/* () */0));
       }
     } else {
-      provisioners$1.push(filesProvisioner(/* () */0));
+      provisioners$1.unshift(filesProvisioner(/* () */0));
     }
   }
   return provisioners$1;

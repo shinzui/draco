@@ -125,7 +125,7 @@ let provisioners ~tmp ~projectId ~zone ~config mode =
   begin
    match buildFromJs mode with
      | Some `App | Some `Both ->
-         ignore(Js.Array.push (filesProvisioner ()) provisioners)
+         ignore(Js.Array.unshift (filesProvisioner ()) provisioners)
      | _ -> ()
   end;
   provisioners
