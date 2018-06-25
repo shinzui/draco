@@ -123,7 +123,7 @@ let provisioners ~tmp ~projectId ~zone ~config mode =
    in
     match buildFromJs mode with
       | Some `App | Some `Both ->
-          [|buildProvisioner;filesProvisioner ()|]
+          [|filesProvisioner ();buildProvisioner|]
       | _ ->
           [|buildProvisioner|]
   in

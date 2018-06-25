@@ -134,12 +134,12 @@ function provisioners(tmp, projectId, zone, config, mode) {
     var match$1 = match[0];
     buildProvisioners = match$1 !== 3257473 ? (
         match$1 !== 737457313 ? /* array */[buildProvisioner$1] : /* array */[
-            buildProvisioner$1,
-            filesProvisioner(/* () */0)
+            filesProvisioner(/* () */0),
+            buildProvisioner$1
           ]
       ) : /* array */[
-        buildProvisioner$1,
-        filesProvisioner(/* () */0)
+        filesProvisioner(/* () */0),
+        buildProvisioner$1
       ];
   } else {
     buildProvisioners = /* array */[buildProvisioner$1];
