@@ -2,12 +2,15 @@
 'use strict';
 
 var List = require("bs-platform/lib/js/list.js");
+var $$Array = require("bs-platform/lib/js/array.js");
 var Js_exn = require("bs-platform/lib/js/js_exn.js");
 var $$String = require("bs-platform/lib/js/string.js");
 var Caml_array = require("bs-platform/lib/js/caml_array.js");
+var Caml_string = require("bs-platform/lib/js/caml_string.js");
 var Js_mapperRt = require("bs-platform/lib/js/js_mapperRt.js");
 var Fs$LidcoreBsNode = require("@lidcore/bs-node/src/fs.js");
 var Tmp$LidcoreDraco = require("../bindings/tmp.js");
+var Shell$LidcoreDraco = require("../bindings/shell.js");
 var Utils$LidcoreDraco = require("../lib/utils.js");
 var Process$LidcoreBsNode = require("@lidcore/bs-node/src/process.js");
 var Caml_builtin_exceptions = require("bs-platform/lib/js/caml_builtin_exceptions.js");
@@ -35,6 +38,14 @@ function getPath(file) {
   return Fs$LidcoreBsNode.realpathSync("" + (String(__dirname) + ("/../../" + (String(file) + ""))));
 }
 
+function packFiles(tmp, files) {
+  var dir = Tmp$LidcoreDraco.make(/* Some */[true], /* None */0, /* None */0, tmp);
+  $$Array.iter((function (file) {
+          return Shell$LidcoreDraco.cp(/* Some */["-rf"], file, dir);
+        }), files);
+  return dir;
+}
+
 function buildProvisioner(projectId, zone, mode) {
   var script = getPath("packer/" + (String(mode) + ".sh"));
   return {
@@ -47,15 +58,7 @@ function buildProvisioner(projectId, zone, mode) {
         };
 }
 
-var source = getPath("packer/draco.system.in");
-
-var systemdProvisioner = {
-  type: "file",
-  source: source,
-  destination: "/tmp"
-};
-
-function builder(source_image, source_image_family, image_name, instance_name, projectId, zone, _) {
+function builder(source_image, source_image_family, image_name, instance_name, projectId, zone) {
   return (function () {
       var tmp = {
         type: "googlecompute",
@@ -79,8 +82,51 @@ function builder(source_image, source_image_family, image_name, instance_name, p
     });
 }
 
-function provisioners(projectId, zone, config, mode) {
+function getCustom(config, mode, name) {
+  var match = config.image;
+  if (match == null) {
+    return /* array */[];
+  } else {
+    var match$1 = match[mode];
+    if (match$1 !== undefined) {
+      var match$2 = match$1[name];
+      if (match$2 !== undefined) {
+        return $$Array.map((function (prim) {
+                      return prim;
+                    }), match$2);
+      } else {
+        return /* array */[];
+      }
+    } else {
+      return /* array */[];
+    }
+  }
+}
+
+var defaultFiles = /* array */[
+  "package.json",
+  "src",
+  "bsconfig.json",
+  "packer/draco.system.in"
+];
+
+function files(config, mode) {
+  var customFiles = getCustom(config, mode, "files");
+  return defaultFiles.concat(customFiles);
+}
+
+function provisioners(tmp, projectId, zone, config, mode) {
   var buildProvisioner$1 = buildProvisioner(projectId, zone, mode);
+  var filesProvisioner = function () {
+    var files$1 = files(config, mode);
+    var source = packFiles(tmp, files$1);
+    var source$1 = Caml_string.get(source, source.length - 1 | 0) !== /* "/" */47 ? "" + (String(source) + "/") : source;
+    return {
+            type: "file",
+            source: source$1,
+            destination: "/home/draco/app"
+          };
+  };
   var match = Js_mapperRt.revSearch(3, jsMapperConstantArray, mode);
   var buildProvisioners;
   if (match) {
@@ -88,41 +134,29 @@ function provisioners(projectId, zone, config, mode) {
     buildProvisioners = match$1 !== 3257473 ? (
         match$1 !== 737457313 ? /* array */[buildProvisioner$1] : /* array */[
             buildProvisioner$1,
-            systemdProvisioner
+            filesProvisioner(/* () */0)
           ]
       ) : /* array */[
         buildProvisioner$1,
-        systemdProvisioner
+        filesProvisioner(/* () */0)
       ];
   } else {
     buildProvisioners = /* array */[buildProvisioner$1];
   }
-  var match$2 = config.image;
-  var customProvisioners;
-  if (match$2 == null) {
-    customProvisioners = /* array */[];
-  } else {
-    var match$3 = match$2[mode];
-    if (match$3 !== undefined) {
-      var match$4 = match$3.provisioners;
-      customProvisioners = (match$4 == null) ? /* array */[] : match$4;
-    } else {
-      customProvisioners = /* array */[];
-    }
-  }
+  var customProvisioners = getCustom(config, mode, "provisioners");
   return customProvisioners.concat(buildProvisioners);
 }
 
-function buildConfig(config, mode) {
+function buildConfig(tmp, config, mode) {
   var projectId = config.projectId;
   var zone = config.zone;
   var smode = Js_mapperRt.binarySearch(3, mode, jsMapperConstantArray);
   var provisioners$1;
   if (mode !== 737457313) {
-    provisioners$1 = provisioners(projectId, zone, config, smode);
+    provisioners$1 = provisioners(tmp, projectId, zone, config, smode);
   } else {
-    var baseProvisioners = provisioners(projectId, zone, config, "base");
-    provisioners$1 = provisioners(projectId, zone, config, "app").concat(baseProvisioners);
+    var baseProvisioners = provisioners(tmp, projectId, zone, config, "base");
+    provisioners$1 = provisioners(tmp, projectId, zone, config, "app").concat(baseProvisioners);
   }
   var instance_name = "draco-" + (String(smode) + "");
   var iname = mode !== 737457313 ? smode : "app";
@@ -134,7 +168,7 @@ function buildConfig(config, mode) {
       /* Some */["draco-base"],
       /* Some */["draco-images"]
     ];
-  var builder$1 = builder(match[0], match[1], image_name, instance_name, projectId, zone, mode)(/* () */0);
+  var builder$1 = builder(match[0], match[1], image_name, instance_name, projectId, zone)(/* () */0);
   return {
           provisioners: provisioners$1,
           builders: /* array */[builder$1]
@@ -142,7 +176,7 @@ function buildConfig(config, mode) {
 }
 
 function getConfig(tmp, config, mode) {
-  var packerConfig = buildConfig(config, mode);
+  var packerConfig = buildConfig(tmp, config, mode);
   var path = Tmp$LidcoreDraco.make(/* None */0, /* None */0, /* Some */[".json"], tmp);
   Fs$LidcoreBsNode.writeFileSync(path, Utils$LidcoreDraco.Json[/* stringify */2](packerConfig));
   return path;

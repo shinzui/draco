@@ -14,6 +14,17 @@ let () =
 
 external __dirname : string = "" [@@bs.val]
 
+let getPath file =
+  Fs.realpathSync {j|$(__dirname)/../../$(file)|j}
+
+let packFiles ~tmp files =
+  let dir =
+    Tmp.make ~makeDir:true tmp
+  in
+  Array.iter (fun file ->
+    Shell.cp ~options:"-rf" file dir) files;
+  dir
+
 type provisioner = {
   ptype:  string [@bs.as "type"];
   (* Script provisioner *)
@@ -23,9 +34,6 @@ type provisioner = {
   source: string [@bs.optional];
   destination: string [@bs.optional]
 } [@@bs.deriving abstract]
-
-let getPath file =
-  Fs.realpathSync {j|$(__dirname)/../../$(file)|j}
 
 let buildProvisioner ~projectId ~zone mode =
   let script =
@@ -38,12 +46,15 @@ let buildProvisioner ~projectId ~zone mode =
       {j|ZONE=$(zone)|j}
     |] ()
 
-let systemdProvisioner =
+let filesProvisioner source =
   let source =
-    getPath "packer/draco.system.in"
+    if String.get source (String.length source - 1) <> '/' then
+      {j|$(source)/|j}
+    else
+      source
   in
   provisioner ~ptype:"file"
-              ~source ~destination:"/tmp" ()
+              ~source ~destination:"/home/draco/app" ()
 
 type builder = {
   btype: string [@bs.as "type"];
@@ -61,7 +72,7 @@ type builder = {
 } [@@bs.deriving abstract]
 
 let builder ?source_image ?source_image_family
-            ~image_name ~instance_name ~projectId ~zone mode =
+            ~image_name ~instance_name ~projectId ~zone =
   builder ~btype:"googlecompute"
     ~project_id:projectId
     ?source_image_family ?source_image
@@ -78,31 +89,50 @@ type packerConfig = {
   builders: builder array
 } [@@bs.deriving abstract]
 
-let provisioners ~projectId ~zone ~config mode =
+let getCustom ~config ~mode name =
+  match Js.Nullable.toOption config##image with
+    | Some config ->
+        (match Js.Dict.get config mode with
+          | Some config ->
+              (match Js.Dict.get config name with
+                 | Some value -> Array.map Obj.magic value
+                 | None -> [||])
+          | None -> [||])
+    | None -> [||]
+
+let defaultFiles = [|
+  "package.json"; "src"; "bsconfig.json";
+  "packer/draco.system.in"
+|]
+
+let files ~config mode =
+  let customFiles =
+    getCustom ~config ~mode "files"
+  in
+  Js.Array.concat customFiles defaultFiles
+
+let provisioners ~tmp ~projectId ~zone ~config mode =
   let buildProvisioners =
     let buildProvisioner =
       buildProvisioner ~projectId ~zone mode
     in
+    let filesProvisioner () =
+      let files = files ~config mode in
+      let source = packFiles ~tmp files in
+      filesProvisioner source
+   in
     match buildFromJs mode with
       | Some `App | Some `Both ->
-          [|buildProvisioner;systemdProvisioner|]
+          [|buildProvisioner;filesProvisioner ()|]
       | _ ->
           [|buildProvisioner|]
   in
   let customProvisioners =
-    match Js.Nullable.toOption config##image with
-      | Some config ->
-          (match Js.Dict.get config mode with
-            | Some config ->
-                (match Js.Nullable.toOption config##provisioners with
-                   | Some provisioners -> provisioners
-                   | None -> [||])
-            | None -> [||])
-      | None -> [||]
+    getCustom ~config ~mode "provisioners"
   in
   Js.Array.concat buildProvisioners customProvisioners
 
-let buildConfig ~config mode =
+let buildConfig ~tmp ~config mode =
   let projectId = config##projectId in
   let zone = config##zone in
   let smode =
@@ -112,12 +142,12 @@ let buildConfig ~config mode =
     match mode with
       | `Both -> 
           let baseProvisioners =
-            provisioners ~projectId ~zone ~config "base"
+            provisioners ~tmp ~projectId ~zone ~config "base"
           in
           Js.Array.concat baseProvisioners
-            (provisioners ~projectId ~zone ~config "app")
+            (provisioners ~tmp ~projectId ~zone ~config "app")
       | _ ->
-          provisioners ~projectId ~zone ~config smode
+          provisioners ~tmp ~projectId ~zone ~config smode
   in
   let instance_name =
     {j|draco-$(smode)|j}
@@ -140,13 +170,13 @@ let buildConfig ~config mode =
   let builder =
     builder ?source_image ?source_image_family
             ~projectId ~zone ~instance_name
-            ~image_name mode ()
+            ~image_name ()
   in
   packerConfig ~provisioners ~builders:[|builder|]
 
 let getConfig ~tmp ~config mode =
   let packerConfig =
-    buildConfig ~config mode
+    buildConfig ~tmp ~config mode
   in
   let path =
     Tmp.make ~postfix:".json" tmp
