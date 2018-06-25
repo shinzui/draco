@@ -54,7 +54,7 @@ let filesProvisioner source =
       source
   in
   provisioner ~ptype:"file"
-              ~source ~destination:"/home/draco/app" ()
+              ~source ~destination:"/home/ubuntu/app" ()
 
 type builder = {
   btype: string [@bs.as "type"];

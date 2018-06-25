@@ -125,7 +125,7 @@ function provisioners(tmp, projectId, zone, config, mode) {
     return {
             type: "file",
             source: source$1,
-            destination: "/home/draco/app"
+            destination: "/home/ubuntu/app"
           };
   };
   var match = Js_mapperRt.revSearch(3, jsMapperConstantArray, mode);

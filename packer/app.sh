@@ -4,7 +4,7 @@
 eval `opam config env`
 
 # Install app
-cd ~/draco/app
+cd ~/ubuntu/app
 npm install
 npm run clean && npm run build
 
