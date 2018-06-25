@@ -10,6 +10,7 @@ var Caml_string = require("bs-platform/lib/js/caml_string.js");
 var Js_mapperRt = require("bs-platform/lib/js/js_mapperRt.js");
 var Fs$LidcoreBsNode = require("@lidcore/bs-node/src/fs.js");
 var Tmp$LidcoreDraco = require("../bindings/tmp.js");
+var Cuid$LidcoreDraco = require("../bindings/cuid.js");
 var Shell$LidcoreDraco = require("../bindings/shell.js");
 var Utils$LidcoreDraco = require("../lib/utils.js");
 var Process$LidcoreBsNode = require("@lidcore/bs-node/src/process.js");
@@ -156,9 +157,10 @@ function buildConfig(tmp, config, mode) {
     provisioners$1 = provisioners(tmp, projectId, zone, config, smode);
   } else {
     var baseProvisioners = provisioners(tmp, projectId, zone, config, "base");
-    provisioners$1 = provisioners(tmp, projectId, zone, config, "app").concat(baseProvisioners);
+    provisioners$1 = baseProvisioners.concat(provisioners(tmp, projectId, zone, config, "app"));
   }
-  var instance_name = "draco-" + (String(smode) + "");
+  var id = Cuid$LidcoreDraco.get(/* () */0);
+  var instance_name = "draco-" + (String(smode) + ("-" + (String(id) + "")));
   var iname = mode !== 737457313 ? smode : "app";
   var image_name = "draco-" + (String(iname) + "");
   var match = mode >= 736760881 ? /* tuple */[

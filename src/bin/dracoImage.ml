@@ -144,13 +144,15 @@ let buildConfig ~tmp ~config mode =
           let baseProvisioners =
             provisioners ~tmp ~projectId ~zone ~config "base"
           in
-          Js.Array.concat baseProvisioners
+          Js.Array.concat
             (provisioners ~tmp ~projectId ~zone ~config "app")
+            baseProvisioners
       | _ ->
           provisioners ~tmp ~projectId ~zone ~config smode
   in
   let instance_name =
-    {j|draco-$(smode)|j}
+    let id = Cuid.get () in
+    {j|draco-$(smode)-$(id)|j}
   in
   let image_name =
     let iname =
