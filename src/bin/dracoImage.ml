@@ -152,7 +152,7 @@ let buildConfig ~tmp ~config mode =
   in
   let instance_name =
     let id = Cuid.get () in
-    {j|draco-$(smode)-$(id)|j}
+    {j|draco-build-$(id)|j}
   in
   let image_name =
     let iname =

@@ -160,7 +160,7 @@ function buildConfig(tmp, config, mode) {
     provisioners$1 = baseProvisioners.concat(provisioners(tmp, projectId, zone, config, "app"));
   }
   var id = Cuid$LidcoreDraco.get(/* () */0);
-  var instance_name = "draco-" + (String(smode) + ("-" + (String(id) + "")));
+  var instance_name = "draco-build-" + (String(id) + "");
   var iname = mode !== 737457313 ? smode : "app";
   var image_name = "draco-" + (String(iname) + "");
   var match = mode >= 736760881 ? /* tuple */[
