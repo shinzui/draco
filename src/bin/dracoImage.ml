@@ -102,7 +102,7 @@ let getCustom ~config ~mode name =
 
 let defaultFiles = [|
   "package.json"; "src"; "bsconfig.json";
-  "packer/draco.system.in"
+  getPath "packer/draco.system.in"
 |]
 
 let files ~config mode =

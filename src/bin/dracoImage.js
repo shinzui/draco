@@ -107,7 +107,7 @@ var defaultFiles = /* array */[
   "package.json",
   "src",
   "bsconfig.json",
-  "packer/draco.system.in"
+  getPath("packer/draco.system.in")
 ];
 
 function files(config, mode) {
