@@ -117,7 +117,8 @@ function files(config, mode) {
 }
 
 function provisioners(tmp, projectId, zone, config, mode) {
-  var buildProvisioner$1 = buildProvisioner(projectId, zone, mode);
+  var provisioners$1 = getCustom(config, mode, "provisioners");
+  provisioners$1.push(buildProvisioner(projectId, zone, mode));
   var filesProvisioner = function () {
     var files$1 = files(config, mode);
     var source = packFiles(tmp, files$1);
@@ -129,23 +130,19 @@ function provisioners(tmp, projectId, zone, config, mode) {
           };
   };
   var match = Js_mapperRt.revSearch(3, jsMapperConstantArray, mode);
-  var buildProvisioners;
   if (match) {
     var match$1 = match[0];
-    buildProvisioners = match$1 !== 3257473 ? (
-        match$1 !== 737457313 ? /* array */[buildProvisioner$1] : /* array */[
-            filesProvisioner(/* () */0),
-            buildProvisioner$1
-          ]
-      ) : /* array */[
-        filesProvisioner(/* () */0),
-        buildProvisioner$1
-      ];
-  } else {
-    buildProvisioners = /* array */[buildProvisioner$1];
+    if (match$1 !== 3257473) {
+      if (match$1 !== 737457313) {
+        
+      } else {
+        provisioners$1.push(filesProvisioner(/* () */0));
+      }
+    } else {
+      provisioners$1.push(filesProvisioner(/* () */0));
+    }
   }
-  var customProvisioners = getCustom(config, mode, "provisioners");
-  return customProvisioners.concat(buildProvisioners);
+  return provisioners$1;
 }
 
 function buildConfig(tmp, config, mode) {

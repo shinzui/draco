@@ -112,25 +112,23 @@ let files ~config mode =
   Js.Array.concat customFiles defaultFiles
 
 let provisioners ~tmp ~projectId ~zone ~config mode =
-  let buildProvisioners =
-    let buildProvisioner =
-      buildProvisioner ~projectId ~zone mode
-    in
-    let filesProvisioner () =
-      let files = files ~config mode in
-      let source = packFiles ~tmp files in
-      filesProvisioner source
-   in
-    match buildFromJs mode with
-      | Some `App | Some `Both ->
-          [|filesProvisioner ();buildProvisioner|]
-      | _ ->
-          [|buildProvisioner|]
-  in
-  let customProvisioners =
+  let provisioners =
     getCustom ~config ~mode "provisioners"
   in
-  Js.Array.concat buildProvisioners customProvisioners
+  ignore(Js.Array.push (buildProvisioner ~projectId ~zone mode)
+                       provisioners);
+  let filesProvisioner () =
+    let files = files ~config mode in
+    let source = packFiles ~tmp files in
+    filesProvisioner source
+  in
+  begin
+   match buildFromJs mode with
+     | Some `App | Some `Both ->
+         ignore(Js.Array.push (filesProvisioner ()) provisioners)
+     | _ -> ()
+  end;
+  provisioners
 
 let buildConfig ~tmp ~config mode =
   let projectId = config##projectId in
