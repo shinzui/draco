@@ -4,7 +4,7 @@
 eval `opam config env`
 
 # Install app
-cd ~/ubuntu/app
+cd ~/app
 npm install
 npm run clean && npm run build
 
