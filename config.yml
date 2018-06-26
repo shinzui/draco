@@ -27,7 +27,7 @@ image:
       - type: file
         source: package.json
         destination: /home/ubuntu/app/package.json
-        weigth: 10
+        priority: 10
       - type: file
         source: bsconfig.json
         destination: /home/ubuntu/app/bsconfig.json
