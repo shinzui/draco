@@ -19,6 +19,10 @@ let partition size a =
 let escape s =
   Printf.sprintf "%S" s
 
+let delete = [%bs.raw fun key obj ->
+  "delete obj[key];"
+]
+
 module Json = struct
   let parse : string -> 'a Js.t = [%bs.raw{|function (x) {
     return JSON.parse(x);

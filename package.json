@@ -34,13 +34,13 @@
     "bs-platform": "^3.1.4",
     "cli-spinner": "^0.2.8",
     "cuid": "^2.1.1",
+    "deepmerge": "^2.1.1",
     "dotenv": "^6.0.0",
     "firebase-admin": "^5.12.1",
     "firebase-functions": "^1.0.4",
     "node-yaml": "^3.1.1",
-    "redis": "^2.8.0",
-    "shelljs": "^0.8.2",
-    "tmp": "0.0.33"
+    "tmp": "0.0.33",
+    "redis": "^2.8.0"
   },
   "author": "Lidcore IT <it@lidcore.com>",
   "license": "BSD-2-Clause",

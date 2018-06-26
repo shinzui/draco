@@ -29,9 +29,26 @@ let configPath =
   let stage = !stage in
   {j|$(baseDir)/config/$(stage)/draco.yml|j}
 
-let config () = Yaml.parse
+external __dirname : string = "" [@@bs.val]
+
+let getPath file =
+  Fs.realpathSync {j|$(__dirname)/../../$(file)|j}
+
+let defaultConfigPath =
+  getPath "config.yml"
+
+let userConfig () = Yaml.parse
   (Buffer.toString
     (Fs.readFileSync configPath))
+
+let defaultConfig = Yaml.parse
+  (Js.String.replaceByRe
+    [%re "/@module_path@/g"] (getPath "")
+    (Buffer.toString
+      (Fs.readFileSync defaultConfigPath)))
+
+let config () =
+  Deepmerge.merge defaultConfig (userConfig ())
 
 let die ?msg () =
   begin

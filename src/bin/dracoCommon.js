@@ -12,6 +12,7 @@ var Path$LidcoreBsNode = require("@lidcore/bs-node/src/path.js");
 var Logger$LidcoreDraco = require("../lib/logger.js");
 var Buffer$LidcoreBsNode = require("@lidcore/bs-node/src/buffer.js");
 var Process$LidcoreBsNode = require("@lidcore/bs-node/src/process.js");
+var Deepmerge$LidcoreDraco = require("../bindings/deepmerge.js");
 
 var stage = ["staging"];
 
@@ -61,8 +62,20 @@ var stage$1 = stage[0];
 
 var configPath = "" + (String(baseDir) + ("/config/" + (String(stage$1) + "/draco.yml")));
 
-function config() {
+function getPath(file) {
+  return Fs$LidcoreBsNode.realpathSync("" + (String(__dirname) + ("/../../" + (String(file) + ""))));
+}
+
+var defaultConfigPath = getPath("config.yml");
+
+function userConfig() {
   return Yaml$LidcoreDraco.parse(Buffer$LidcoreBsNode.toString(/* None */0, /* None */0, /* None */0, Fs$LidcoreBsNode.readFileSync(configPath)));
+}
+
+var defaultConfig = Yaml$LidcoreDraco.parse(Buffer$LidcoreBsNode.toString(/* None */0, /* None */0, /* None */0, Fs$LidcoreBsNode.readFileSync(defaultConfigPath)).replace((/@module_path@/g), getPath("")));
+
+function config() {
+  return Deepmerge$LidcoreDraco.merge(defaultConfig, userConfig(/* () */0));
 }
 
 function die(msg, _) {
@@ -84,4 +97,5 @@ exports.usage = usage;
 exports.configPath = configPath;
 exports.config = config;
 exports.die = die;
+exports.getPath = getPath;
 /* argv Not a pure module */

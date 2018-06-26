@@ -43,6 +43,8 @@ function $$escape(s) {
                 ]), s);
 }
 
+var $$delete = function (key,obj){delete obj[key];};
+
 var parse = (function (x) {
     return JSON.parse(x);
   });
@@ -60,7 +62,7 @@ function stringify(obj) {
           Caml_builtin_exceptions.assert_failure,
           [
             "utils.ml",
-            33,
+            37,
             16
           ]
         ];
@@ -76,5 +78,6 @@ var Json = /* module */[
 exports.get_some = get_some;
 exports.partition = partition;
 exports.$$escape = $$escape;
+exports.$$delete = $$delete;
 exports.Json = Json;
 /* parse Not a pure module */
