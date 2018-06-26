@@ -51,8 +51,8 @@ let buildConfig ~config mode =
     in
     let image_name =
       match mode with
-        | "app" | "both" -> "app"
-        | _ -> "base"
+        | "app" | "both" -> "draco-app"
+        | _ -> "draco-base"
     in
     let builder =
       getConfig ~config ~mode "builder"
