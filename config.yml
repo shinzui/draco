@@ -35,6 +35,7 @@ image:
       - type: file
         source: @module_path@/packer/draco.systemd.in
         destination: /home/ubuntu/app/draco.systemd.in
+        priority: 10
       - type: file
         source: src
         destination: /home/ubuntu/app/src
