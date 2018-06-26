@@ -60,6 +60,15 @@ function buildConfig(config, mode) {
   var mode$1 = mode === "both" ? "base" : mode;
   var id = Cuid$LidcoreDraco.get(/* () */0);
   var instance_name = "draco-build-" + (String(id) + "");
+  var image_name;
+  switch (mode$1) {
+    case "app" : 
+    case "both" : 
+        image_name = "app";
+        break;
+    default:
+      image_name = "base";
+  }
   var builder = getConfig(config, mode$1, "builder");
   var condSet = function (lbl, value) {
     var match = builder[lbl];
@@ -73,6 +82,7 @@ function buildConfig(config, mode) {
   condSet("project_id", config.projectId);
   condSet("zone", config.zone);
   condSet("instance_name", instance_name);
+  condSet("image_name", image_name);
   return {
           provisioners: provisioners$1,
           builders: /* array */[builder]

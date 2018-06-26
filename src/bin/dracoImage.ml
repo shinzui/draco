@@ -49,6 +49,11 @@ let buildConfig ~config mode =
       let id = Cuid.get () in
       {j|draco-build-$(id)|j}
     in
+    let image_name =
+      match mode with
+        | "app" | "both" -> "app"
+        | _ -> "base"
+    in
     let builder =
       getConfig ~config ~mode "builder"
     in
@@ -60,6 +65,7 @@ let buildConfig ~config mode =
     condSet "project_id" config##projectId;
     condSet "zone" config##zone;
     condSet "instance_name" instance_name;
+    condSet "image_name" image_name;
     builder
   in
   packerConfig ~provisioners ~builders:[|builder|]
