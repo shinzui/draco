@@ -4,7 +4,7 @@
 var Deepmerge = require("deepmerge");
 
 function merge(prim, prim$1) {
-  return Deepmerge.merge(prim, prim$1);
+  return Deepmerge(prim, prim$1);
 }
 
 exports.merge = merge;
