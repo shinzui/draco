@@ -1,1 +1,1 @@
-external exec : string -> unit = "requireall" [@@bs.module]
+external exec : string -> unit = "require-all" [@@bs.module]
