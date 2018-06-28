@@ -5,7 +5,7 @@ var Fs$LidcoreBsNode = require("@lidcore/bs-node/src/fs.js");
 var Instances$LidcoreDraco = require("./lib/instances.js");
 var RequireAll$LidcoreDraco = require("./bindings/requireAll.js");
 
-var instancesDir = "" + (String(__dirname) + "/../../../src/instances");
+var instancesDir = "" + (String(__dirname) + "/../../../../src/instances");
 
 if (Fs$LidcoreBsNode.existsSync(instancesDir)) {
   RequireAll$LidcoreDraco.exec(instancesDir);
