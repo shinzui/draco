@@ -12,7 +12,7 @@ npm run clean && npm run build
 systemd_target="/lib/systemd/system/draco.service"
 base_dir="${HOME}/draco"
 node_binary=`which node`
-run_script="${base_dir}/src/daemon.js"
+run_script="${base_dir}/node_modules/@lidcore/draco/src/daemon.js"
 
 cat draco.systemd.in | \
     sed -e "s#@base_dir@#${base_dir}#g" | \

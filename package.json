@@ -39,8 +39,9 @@
     "firebase-admin": "^5.12.1",
     "firebase-functions": "^1.0.4",
     "node-yaml": "^3.1.1",
-    "tmp": "0.0.33",
-    "redis": "^2.8.0"
+    "redis": "^2.8.0",
+    "require-all": "^2.2.0",
+    "tmp": "0.0.33"
   },
   "author": "Lidcore IT <it@lidcore.com>",
   "license": "BSD-2-Clause",
