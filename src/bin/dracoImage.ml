@@ -1,10 +1,10 @@
 open LidcoreBsNode
 open DracoCommon
 
-let default_mode = "both"
+let default_mode = "world"
 
 let () =
-  usage "image build [base|app|both]"
+  usage "image build [base|app|world]"
 
 type ('a,'b) packerConfig = {
   provisioners: 'a Js.t array;
@@ -32,7 +32,7 @@ let provisioners ~config mode =
     ret
   in
   match mode with
-    | "both" ->
+    | "world" ->
         Js.Array.concat (get "app") (get "base")
     | _ ->
         get mode
@@ -43,7 +43,7 @@ let buildConfig ~config mode =
   in
   let builder =
     let mode =
-      if mode = "both" then "base" else mode
+      if mode = "world" then "base" else mode
     in
     let instance_name =
       let id = Cuid.get () in
@@ -51,7 +51,7 @@ let buildConfig ~config mode =
     in
     let image_name =
       match mode with
-        | "app" | "both" -> "draco-app"
+        | "app" | "world" -> "draco-app"
         | _ -> "draco-base"
     in
     let builder =
@@ -107,7 +107,7 @@ let () =
   let mode =
     try
       let mode = argv.(3) in
-      if not (List.mem mode ["base";"app";"both"]) then
+      if not (List.mem mode ["base";"app";"world"]) then
         die ~msg:{j|Invalid mode: $(mode)|j} ();
       mode
      with
